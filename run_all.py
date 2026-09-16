@@ -1,23 +1,29 @@
 """
 ProcurePrep – Batch Runner
 ----------------------------
-Runs all test cases automatically and writes results to results_filled.md.
+Runs all test cases automatically and writes results to a markdown file.
 
 Usage:
-    export GEMINI_API_KEY="your-key-here"
-    python run_all.py
+    /opt/anaconda3/bin/python3 run_all.py              # baseline (no RAG)
+    /opt/anaconda3/bin/python3 run_all.py --rag        # RAG-augmented
 
 Optional flags:
-    --checklist  checklist.txt      (default)
-    --prompt     prompt_v1.txt      (default)
-    --output     results_filled.md  (default)
-    --submissions 1 2 3             (run specific submissions only)
+    --checklist    checklist.txt       (default)
+    --prompt       prompt_v1.txt       (default, ignored in --rag mode)
+    --output       results_filled.md   (default)
+    --rag                              run through rag_checker instead of bare Gemini
+    --rag-prompt   prompt_v2.txt       (default when --rag is set)
+    --rag-output   results_rag.md      (default when --rag is set)
+    --submissions  1 2 3               (run specific submissions only)
 """
 
 import os
 import sys
 import time
 import argparse
+
+from dotenv import load_dotenv
+load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"))
 
 from google import genai
 from google.genai import types
@@ -27,12 +33,23 @@ from google.genai import types
 # ---------------------------------------------------------------------------
 parser = argparse.ArgumentParser(description="ProcurePrep – Batch Runner")
 parser.add_argument("--checklist",   default="checklist.txt",    help="Checklist file")
-parser.add_argument("--prompt",      default="prompt_v1.txt",    help="System prompt file")
-parser.add_argument("--output",      default="results_filled.md", help="Output results file")
+parser.add_argument("--prompt",      default="prompt_v1.txt",    help="System prompt file (baseline mode)")
+parser.add_argument("--output",      default="results_filled.md", help="Output results file (baseline mode)")
+parser.add_argument("--rag",         action="store_true",         help="Use RAG-augmented checker")
+parser.add_argument("--rag-prompt",  default="prompt_v2.txt",    help="System prompt for RAG mode")
+parser.add_argument("--rag-output",  default="results_rag.md",   help="Output file for RAG mode")
 parser.add_argument("--submissions", nargs="+", type=int,
                     default=list(range(1, 11)),
                     help="Submission numbers to run (e.g. --submissions 1 2 3)")
 args = parser.parse_args()
+
+if args.rag:
+    from src.rag_checker import rag_check
+    effective_prompt_file = args.rag_prompt
+    effective_output_file = args.rag_output
+else:
+    effective_prompt_file = args.prompt
+    effective_output_file = args.output
 
 # ---------------------------------------------------------------------------
 # 2. API key
@@ -49,7 +66,7 @@ if not api_key:
 with open(args.checklist, "r") as f:
     checklist_text = f.read()
 
-with open(args.prompt, "r") as f:
+with open(effective_prompt_file, "r") as f:
     system_prompt = f.read()
 
 # ---------------------------------------------------------------------------
@@ -88,7 +105,8 @@ client = genai.Client(api_key=api_key)
 # ---------------------------------------------------------------------------
 import json
 
-CACHE_FILE = "cache.json"
+# RAG and baseline runs use separate cache files so they never share entries.
+CACHE_FILE = "cache_rag.json" if args.rag else "cache.json"
 cache = {}
 if os.path.exists(CACHE_FILE):
     try:
@@ -106,7 +124,8 @@ for tc_num in sorted(args.submissions):
         continue
 
     tc_str = str(tc_num)
-    if tc_str in cache and "API ERROR" not in cache[tc_str]:
+    # RAG runs are never served from cache — retrieval is part of the evaluation.
+    if not args.rag and tc_str in cache and "API ERROR" not in cache[tc_str]:
         print(f"\n{'='*60}")
         print(f"TC-{tc_num:02d}: {tc['description']}")
         print(f"[CACHED] Skipping API call, using saved result.")
@@ -134,27 +153,38 @@ TENDER SUBMISSION:
 """
 
     print(f"\n{'='*60}")
-    print(f"Running TC-{tc_num:02d}: {tc['description']}")
+    print(f"Running TC-{tc_num:02d}: {tc['description']} {'[RAG]' if args.rag else ''}")
     print(f"File: {sub_file}")
     print("="*60)
 
     try:
-        response = client.models.generate_content(
-            model="gemini-3.5-flash-lite",
-            contents=user_message,
-            config=types.GenerateContentConfig(
-                system_instruction=system_prompt,
-            ),
-        )
-        model_output = response.text
+        if args.rag:
+            # RAG path – retrieve, inject knowledge, generate.
+            result = rag_check(
+                submission_text=submission_text,
+                checklist_text=checklist_text,
+                system_prompt=system_prompt,
+                tc_label=f"TC-{tc_num:02d}",
+            )
+            model_output = result["report"]
+        else:
+            # Baseline path – direct Gemini call with cache.
+            response = client.models.generate_content(
+                model="gemini-3.5-flash-lite",
+                contents=user_message,
+                config=types.GenerateContentConfig(
+                    system_instruction=system_prompt,
+                ),
+            )
+            model_output = response.text
+            # Save successful baseline result to cache immediately.
+            cache[tc_str] = model_output
+            with open(CACHE_FILE, "w") as f:
+                json.dump(cache, f, indent=4)
+
         print(model_output)
         results[tc_num] = {"output": model_output, **tc}
-        
-        # Save successful result to cache immediately
-        cache[tc_str] = model_output
-        with open(CACHE_FILE, "w") as f:
-            json.dump(cache, f, indent=4)
-            
+
     except Exception as e:
         error_msg = f"API ERROR: {e}"
         print(error_msg)
@@ -162,16 +192,20 @@ TENDER SUBMISSION:
 
     # Respect rate limits – pause between calls
     if tc_num != sorted(args.submissions)[-1]:
-        time.sleep(5)  # Increased from 2 to 5 to help prevent 429 quota errors
+        time.sleep(5)
 
 # ---------------------------------------------------------------------------
 # 7. Write results_filled.md
 # ---------------------------------------------------------------------------
+mode_label = "RAG-Augmented" if args.rag else "Baseline"
+model_label = "gemini-2.0-flash (RAG)" if args.rag else "gemini-3.5-flash-lite (baseline)"
+
 md_lines = [
-    "# ProcurePrep – Test Results Log (Auto-generated)\n",
+    f"# ProcurePrep – Test Results Log [{mode_label}] (Auto-generated)\n",
     "",
-    f"**Model:** gemini-3.5-flash-lite  ",
-    f"**Prompt Version:** {args.prompt}  ",
+    f"**Mode:** {mode_label}  ",
+    f"**Model:** {model_label}  ",
+    f"**Prompt Version:** {effective_prompt_file}  ",
     f"**Checklist:** {args.checklist} (8 items)  ",
     "",
     "---",
@@ -193,8 +227,8 @@ for tc_num in sorted(results.keys()):
     md_lines.append("---")
     md_lines.append("")
 
-with open(args.output, "w") as f:
+with open(effective_output_file, "w") as f:
     f.write("\n".join(md_lines))
 
-print(f"\n✅ Done! Results written to: {args.output}")
+print(f"\n✅ Done! Results written to: {effective_output_file}")
 print(f"   {len(results)} test case(s) processed.")

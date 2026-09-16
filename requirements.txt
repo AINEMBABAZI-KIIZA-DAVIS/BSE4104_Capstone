@@ -1,4 +1,4 @@
-# ProcurePrep – Week 2 dependencies
+# ProcurePrep – dependencies
 #
 # Recommended setup (virtual environment):
 #   python3 -m venv venv          # create the venv (once)
@@ -8,4 +8,9 @@
 # To deactivate when done:
 #   deactivate
 
+# Week 2 – Gemini API
 google-genai>=1.0.0
+
+# Week 3 – RAG / vector store
+chromadb>=0.5.0
+python-dotenv>=1.0.0
