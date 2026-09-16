@@ -1,0 +1,24 @@
+quotation_id,item_id,supplier_name,unit_price,quantity_available,delivery_terms,quotation_valid_until,notes
+Q-101,ITEM-001,Kampala Modern Stationers Ltd,24000,100,Delivery within 2 business days,2026-10-15,Free delivery within Kampala central
+Q-102,ITEM-001,Uganda Paper & Stationery Mills,22500,500,5-7 business days transit time,2026-10-30,Bulk warehouse dispatch from Jinja
+Q-103,ITEM-001,Crested Office Supplies,26000,50,Same-day courier dispatch,2026-09-30,Payment terms: Cash on delivery
+Q-104,ITEM-002,Kampala Modern Stationers Ltd,35000,150,Delivery within 2 business days,2026-10-15,Standard stock item
+Q-105,ITEM-002,Crown Office Technologies,37000,80,Next-day delivery,2026-10-20,High quality German ink
+Q-106,ITEM-003,Crown Office Technologies,48000,15,3 business days delivery,2026-10-25,Sole authorized distributor for Kangaro brand
+Q-107,ITEM-004,PointOfSale Uganda Ltd,45000,80,,2026-10-10,High quality thermal paper 65gsm
+Q-108,ITEM-004,Victoria Paper Traders,48000,40,Delivery within 24 hours,2026-10-05,Express delivery included
+Q-109,ITEM-005,CleanPro Solutions Uganda,38000,60,Delivery within 3 business days,2026-08-15,UNBS certified medical grade disinfectant
+Q-110,ITEM-005,SafeClean Commercial Chemicals,42000,30,Next-day delivery,2026-10-31,Includes safety handling datasheet
+Q-111,ITEM-006,Industrial Packaging Hub,8500,200,Self-collection from Industrial Area warehouse,2026-10-20,Immediate pickup upon payment
+Q-112,ITEM-006,Prime Pack Uganda,8500,150,Delivery within 4 business days,2026-10-25,Doorstep delivery included in price
+Q-113,ITEM-008,Apex Safety Wear Ltd,15000,20,Delivery within 2 business days,2026-10-15,Partial stock available only
+Q-114,ITEM-008,Guardian Protective Gear,16500,25,Delivery within 3 business days,2026-10-18,Restock arriving next month
+Q-115,ITEM-009,Kyambogo Computer World,160000,25,Next-day delivery,2026-10-30,Original HP cartridge with security seal
+Q-116,ITEM-009,Speke IT Solutions,165000,15,Delivery within 2 business days,2026-10-25,Genuine distributor warranty
+Q-117,ITEM-009,QuickFix Electronics,850000,5,Immediate courier delivery,2026-10-05,Outlier premium emergency stock
+Q-118,ITEM-010,Kakira Sugar Distribution Agent,210000,100,Delivery within 3 business days,2026-10-31,Standard commercial wholesale price
+Q-119,ITEM-010,Lugazi Direct Agro-Millers,185000,300,5-7 business days transit time,2026-10-20,Special mill rate: Minimum order quantity 50 bags; will not fulfill smaller orders
+Q-120,ITEM-012,Barcode Solutions East Africa,32000,60,Delivery within 2 business days,2026-10-15,Standard wax-resin compatible
+Q-121,ITEM-015,Emergency Health Supplies UG,120000,10,Next-day delivery,2026-10-22,Red Cross compliant kit
+Q-122,ITEM-017,CleanPro Solutions Uganda,25000,40,Delivery within 3 business days,2026-10-15,Microfiber lint free pack
+Q-123,ITEM-020,Kampala Electrical & Hardware,18000,50,Delivery within 2 business days,2026-10-28,Philips LED 18W T8

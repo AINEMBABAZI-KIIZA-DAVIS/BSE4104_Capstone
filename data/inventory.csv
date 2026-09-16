@@ -1,0 +1,21 @@
+item_id,item_name,current_stock,reorder_threshold,unit,category
+ITEM-001,Printing Paper A4 80gsm,12,40,Ream,Office Supplies
+ITEM-002,Ballpoint Pens Blue Box of 50,45,20,Box,Office Supplies
+ITEM-003,Heavy Duty Desktop Stapler,2,8,Piece,Office Equipment
+ITEM-004,Thermal POS Receipt Rolls 80mm,5,25,Carton,Point of Sale Supplies
+ITEM-005,Surface Disinfectant Cleaner 5L,3,15,Jerrycan,Cleaning Supplies
+ITEM-006,Heavy Duty Packaging Tape 3-inch,8,30,Roll,Packaging
+ITEM-007,LaserJet Imaging Drum Unit,1,3,Unit,IT Hardware
+ITEM-008,Heavy Duty Industrial Gloves,0,50,Pair,Safety Equipment
+ITEM-009,HP LaserJet Toner Cartridge 85A,2,10,Cartridge,IT Supplies
+ITEM-010,Industrial Granulated Sugar 50kg,4,20,Bag,Raw Materials
+ITEM-011,Hand Sanitizer Gel 500ml,32,15,Bottle,Health & Safety
+ITEM-012,Direct Thermal Barcode Labels,14,50,Roll,Packaging
+ITEM-013,Network Cable Cat6 305m Drum,2,2,Drum,IT Hardware
+ITEM-014,Bleach Sodium Hypochlorite 5L,18,10,Jerrycan,Cleaning Supplies
+ITEM-015,First Aid Refill Kit Deluxe,4,5,Kit,Safety Equipment
+ITEM-016,Corrugated Shipping Boxes Medium,120,50,Piece,Packaging
+ITEM-017,Microfiber Cleaning Cloths Pack of 10,6,20,Pack,Cleaning Supplies
+ITEM-018,Commercial Ground Coffee 1kg,15,8,Bag,Kitchen Supplies
+ITEM-019,Whiteboard Markers Assorted Box,22,12,Box,Office Supplies
+ITEM-020,LED Fluorescent Tube Lights 4ft,3,12,Piece,Maintenance & Electrical
