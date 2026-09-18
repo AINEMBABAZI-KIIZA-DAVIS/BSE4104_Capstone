@@ -14,3 +14,5 @@ google-genai>=1.0.0
 # Week 3 – RAG / vector store
 chromadb>=0.5.0
 python-dotenv>=1.0.0
+
+# Week 4 – tools / agent (stdlib unittest for tests; no extra test deps required)

@@ -1,0 +1,22 @@
+SME Inventory Reorder Policy
+
+Purpose: Define when store managers must initiate replenishment and how quotations are solicited before purchase.
+
+Reorder Trigger:
+- An item requires reorder when current_stock is strictly below reorder_threshold (as recorded in the inventory system).
+- Reorder decisions are made in code; the AI assistant compares quotations only after a deterministic reorder flag is raised.
+
+Quotation Solicitation:
+- For items below threshold with zero quotations on file, the store manager must solicit quotes from at least two registered suppliers before comparison.
+- For purchases in the UGX 500,000–5,000,000 band, procurement policy requires a minimum of three quotations before approval.
+
+Quotation Validity:
+- Only quotations with a valid_until date on or after the operating reference date may be used for comparison.
+- Expired quotations must be re-solicited; they are flagged as non-binding and inactionable.
+
+Minimum Information on Supplier Quotations:
+- Supplier name, unit price in UGX, quantity available, delivery terms (location, lead time, transport responsibility), and quotation validity date.
+- Missing delivery terms create cost uncertainty and must be flagged for clarification before order placement.
+
+Human Approval:
+- The AI provides objective comparison only. Final supplier selection and purchase order issuance require authorized manager approval.
