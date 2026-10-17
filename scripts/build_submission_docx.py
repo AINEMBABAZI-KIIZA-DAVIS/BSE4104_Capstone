@@ -23,8 +23,9 @@ from PIL import Image, ImageDraw, ImageFont
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 SUBMISSION = PROJECT_ROOT / "submission"
-WEEK2 = SUBMISSION / "week2"
-WEEK3 = SUBMISSION / "week3"
+WEEK2 = SUBMISSION / "WEEK2"
+WEEK3 = SUBMISSION / "WEEK3"
+WEEK4 = SUBMISSION / "WEEK4"
 
 FONT_BODY = "Calibri"
 FONT_CODE = "Consolas"
@@ -516,39 +517,27 @@ def main() -> None:
     build_standard_doc(
         "Model Selection Note",
         PROJECT_ROOT / "docs/model-selection-note.md",
-        WEEK2 / "Model_Selection_Note.docx",
+        WEEK2 / "ProcurePrep UG Model Selection Note.docx",
     )
     build_standard_doc(
         "Prompt Specification v1.0",
         PROJECT_ROOT / "prompts/prompt_spec_v1.0.md",
-        WEEK2 / "Prompt_Specification_v1.0.docx",
+        WEEK2 / "ProcurePrep UG Prompt Specification v1.0.docx",
     )
-    build_merged_prompt_spec(WEEK2 / "Prompt_Specification_v1.1_and_Version_History.docx")
-    build_week2_evaluation(WEEK2 / "Week2_10Case_Evaluation_Table.docx")
-    build_standard_doc(
-        "Week 2 Progress Report",
-        PROJECT_ROOT / "docs/weekly-reports/week2.md",
-        WEEK2 / "Week2_Progress_Report.docx",
-        render_diagrams=True,
-    )
+    build_merged_prompt_spec(WEEK2 / "ProcurePrep UG Prompt Specification v1.1 and Version History.docx")
+    build_week2_evaluation(WEEK2 / "ProcurePrep UG 10-Case Evaluation Table.docx")
 
     print("Building Week 3 submission documents...")
-    build_corpus_register(WEEK3 / "Corpus_Register.docx")
-    build_rag_architecture(WEEK3 / "RAG_Architecture.docx")
-    build_week3_rag_evaluation(WEEK3 / "Week3_RAG_Evaluation.docx")
+    build_corpus_register(WEEK3 / "ProcurePrep UG Corpus Register.docx")
+    build_rag_architecture(WEEK3 / "ProcurePrep UG RAG Architecture.docx")
+    build_week3_rag_evaluation(WEEK3 / "ProcurePrep UG RAG Evaluation.docx")
     build_standard_doc(
         "Sample Grounded Comparison",
         PROJECT_ROOT / "results/reorder_reports_rag_sample.md",
-        WEEK3 / "Sample_Grounded_Comparison.docx",
-    )
-    build_standard_doc(
-        "Week 3 Progress Report",
-        PROJECT_ROOT / "docs/weekly-reports/week3.md",
-        WEEK3 / "Week3_Progress_Report.docx",
-        render_diagrams=True,
+        WEEK3 / "ProcurePrep UG Sample Grounded Comparison.docx",
     )
 
-    print("\nDone.")
+    print("\nDone. Progress reports and architecture JPGs are built by scripts/arrange_submissions.py")
 
 
 if __name__ == "__main__":

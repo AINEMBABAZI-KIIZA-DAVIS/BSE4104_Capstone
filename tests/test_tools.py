@@ -24,6 +24,7 @@ from src.tools import (
     set_reference_date,
     set_store,
 )
+from google.genai import types
 
 
 class ToolTests(unittest.TestCase):
@@ -156,6 +157,52 @@ class ToolTests(unittest.TestCase):
         self.assertEqual(result["unit_price"], 45000)
         self.assertEqual(result["total_estimated_cost"], 900000)
         self.assertIn("requisition_id", result)
+
+    # --- Unauthorized / unexpected ---
+
+    def test_unknown_tool_rejected(self):
+        result = dispatch_tool("award_supplier_contract", {"item_id": "ITEM-004"})
+        self.assertEqual(result["error"], "UNKNOWN_TOOL")
+        self.assertEqual(result["tool"], "award_supplier_contract")
+
+    def test_human_declines_routing(self):
+        draft = create_requisition_draft(
+            item_id="ITEM-004",
+            quantity=5,
+            selected_quotation_id="Q-107",
+            requested_by="Tester",
+        )
+
+        fc = MagicMock()
+        fc.name = "route_requisition_for_approval"
+        fc.args = {"requisition_id": draft["requisition_id"]}
+        fc.id = "call-route-1"
+
+        first = MagicMock()
+        first.function_calls = [fc]
+        first.candidates = [MagicMock()]
+        first.candidates[0].content = types.Content(
+            role="model",
+            parts=[types.Part.from_function_call(name=fc.name, args=dict(fc.args))],
+        )
+
+        second = MagicMock()
+        second.function_calls = None
+        second.text = "Routing was not executed because the human reviewer declined."
+
+        mock_client = MagicMock()
+        mock_client.models.generate_content.side_effect = [first, second]
+
+        final, transcript = run_agent(
+            f"Route {draft['requisition_id']} for approval",
+            api_client=mock_client,
+            confirm_callback=lambda name, args: False,
+        )
+
+        self.assertIn("declined", final.lower())
+        self.assertTrue(any("HUMAN_DECLINED" in line or "human declined" in line.lower() for line in transcript))
+        stored = self.store.get(draft["requisition_id"])
+        self.assertEqual(stored["status"], "DRAFT")
 
     # --- Orchestrator API failure ---
 

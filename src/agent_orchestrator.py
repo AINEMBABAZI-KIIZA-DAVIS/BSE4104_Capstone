@@ -139,12 +139,17 @@ def run_agent_turn(
                     "name": name,
                     "response": {"result": result},
                 }
-                if getattr(fc, "id", None):
-                    fn_response_kwargs["id"] = fc.id
+                try:
+                    part = types.Part.from_function_response(**fn_response_kwargs)
+                except TypeError:
+                    part = types.Part.from_function_response(
+                        name=name,
+                        response={"result": result},
+                    )
                 contents.append(
                     types.Content(
                         role="tool",
-                        parts=[types.Part.from_function_response(**fn_response_kwargs)],
+                        parts=[part],
                     )
                 )
             continue

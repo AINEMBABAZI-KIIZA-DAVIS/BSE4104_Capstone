@@ -1,8 +1,8 @@
-# ProcurePrep Agent Architecture (Week 4)
+# ProcurePrep Agent Architecture (Weeks 4–6)
 
-**Scope:** Tool calling and human-approval gate on top of the corrected SME workflow (Week 2 deterministic gate + Week 3 RAG).
+**Scope:** Tool calling (Week 4), bounded autonomy (Week 5), explicit state and justified memory (Week 6).
 
-**Model:** `gemini-3.5-flash-lite` with Gemini native function calling (`google-genai`, AFC disabled for manual gating).
+**Model / planner:** Week 4 Gemini function calling remains available. The Week 5 bounded workflow uses **direct orchestration** in `src/bounded_agent.py` so next-action choice, limits and stop reasons are inspectable without a live model.
 
 ---
 
@@ -10,23 +10,24 @@
 
 ```mermaid
 flowchart TD
-    A[data/inventory.csv] --> B{Deterministic Reorder Gate<br/>main.py / get_reorder_status}
-    B -->|No| C[Log PASS]
-    B -->|Yes| D[data/quotations.csv]
-    D --> E{Agent task?}
-    E --> F[Gemini agent_orchestrator.py]
-    F --> G[get_supplier_quotations]
-    F --> H[get_reorder_status]
-    G --> I[RAG corpus optional context<br/>Week 3 rag_reorder_checker]
-    I --> J[Grounded comparison / policy Q&A]
-    G --> K[create_requisition_draft]
-    K --> L[(data/requisitions.json)]
-    K --> M{User requests routing?}
-    M -->|Yes| N[Stage route_requisition_for_approval]
-    N --> O{Human y/n confirm?}
-    O -->|No| P[HUMAN_DECLINED — no state change]
-    O -->|Yes| Q[PENDING_APPROVAL simulated route]
-    Q --> R[Human store manager approval]
+    A[User goal: prepare requisition] --> B[SENSE session + memory hints]
+    B --> C[PLAN next approved tool]
+    C -->|get_reorder_status| D[Observe stock]
+    D -->|no reorder| E[STOP NO_REORDER_NEEDED]
+    D -->|needs reorder| F[PLAN get_supplier_quotations]
+    F --> G[Observe quotes]
+    G -->|none| H[STOP NO_QUOTATIONS]
+    G -->|quotes| I[PLAN create_requisition_draft]
+    I --> J{Tool result}
+    J -->|QUOTATION_EXPIRED| K[Exclude quote / RE-PLAN]
+    K --> I
+    J -->|DRAFT created| L{User asked to route?}
+    L -->|No| M[STOP GOAL_COMPLETE]
+    L -->|Yes| N[Stage route_requisition_for_approval]
+    N --> O{Human confirm?}
+    O -->|No| P[STOP HUMAN_DECLINED]
+    O -->|Yes| Q[PENDING_APPROVAL]
+    Q --> R[STOP GOAL_COMPLETE]
 ```
 
 ---
@@ -35,33 +36,26 @@ flowchart TD
 
 | Layer | Components | Role |
 | :--- | :--- | :--- |
-| **Operational data** | `data/inventory.csv`, `data/quotations.csv` | Stock levels and supplier quotes. |
-| **Deterministic gate** | `main.py`, `src/procure_data.py`, Tool 4 `get_reorder_status` | Reorder math in Python only. |
-| **RAG (Week 3)** | `src/rag_reorder_checker.py`, `knowledge/`, ChromaDB | Ground explanations in procurement corpus. |
-| **Tools (Week 4)** | `src/tools.py` | Callable functions with structured I/O and deterministic validation. |
-| **Orchestrator** | `src/agent_orchestrator.py` | Gemini selects tools; executes low-risk calls; gates high-impact routing. |
-| **Draft store** | `src/requisition_store.py`, `data/requisitions.json` | Persists DRAFT / PENDING_APPROVAL state across calls. |
-| **Human gate** | CLI confirmation | Required before `route_requisition_for_approval` executes. |
+| Operational data | `data/inventory.csv`, `data/quotations.csv` | Stock and quotes |
+| Deterministic gate | `get_reorder_status`, `src/procure_data.py` | Reorder math in Python |
+| Tools | `src/tools.py` | Structured I/O and validation |
+| Bounded agent | `src/bounded_agent.py` | Sense/Plan/Act/Observe/Stop |
+| Session state | `src/agent_state.py` | One-run workflow fields |
+| Persistent memory | `src/agent_memory.py` | Prefill only; 90-day retention |
+| MCP-style interface | `src/mcp_interface.py` | Capability catalogue + permissions |
+| Human gate | CLI / confirm callback | Required before routing |
+| Draft store | `src/requisition_store.py` | DRAFT / PENDING_APPROVAL |
 
 ---
 
-## Tool-calling loop
+## Week 4 vs Week 5 vs Week 6
 
-1. User provides a natural-language task (e.g. “check quotes for ITEM-004 and draft for cheapest valid quote”).
-2. `generate_content` returns `function_calls` when the model chooses a tool (AFC disabled).
-3. Orchestrator executes the tool via `dispatch_tool` and appends `Part.from_function_response` to the conversation.
-4. Loop continues until the model returns a final text summary or `MAX_TOOL_TURNS` is reached.
-5. If the model requests `route_requisition_for_approval`, execution pauses for explicit human `y/n` confirmation.
-
----
-
-## Safety boundaries (Week 4 vs Week 5)
-
-| Capability | Week 4 | Week 5 (planned) |
-| :--- | :--- | :--- |
-| Individual tool definitions | Yes | Extended |
-| Model-initiated tool choice | Yes (single task loop) | Multi-turn autonomous loop |
-| Human gate on high-impact tool | Yes | Retained |
-| Full agent memory / state machine | No | Yes |
-
-See also: `docs/architecture/rag-architecture.md` for the Week 3 retrieval layer.
+| Capability | Week 4 | Week 5 | Week 6 |
+| :--- | :--- | :--- | :--- |
+| Explicit tools | Yes | Same allow-list | Same + MCP wrapper |
+| Model-initiated calls | Yes | Optional | Optional |
+| Bounded multi-step loop | No | Yes | Yes |
+| Iteration / recovery limits | Turn cap only | 8 iterations, 2 recoveries | Same |
+| Inspectable session state | No | Yes | Documented state model |
+| Persistent memory | No | No | Justified item history + preference |
+| Human gate on routing | Yes | Retained | Retained |

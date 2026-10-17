@@ -1,82 +1,55 @@
-# ProcurePrep – Week 4 Progress Report
+# BSE4104 AI-Native & Agentic Engineering Capstone
 
-**Milestone:** Tools and Function Calling
-**Author:** AI Agentic Development Team
-**Date:** September 17, 2026
-**Course / Project:** BSE4104 AI Agentic Capstone
+## Week 4 Progress Report
 
----
+**Project:** ProcurePrep UG — AI-Native SME Procurement-Preparation Agent  
+**Week:** Week 4  
+**Week Ending:** 25 September 2026
 
-## 1. Executive Summary
+### 1. Work Completed
 
-Week 4 adds a **tool-calling layer** on top of the corrected SME workflow from Weeks 2–3. Four callable tools are implemented in `src/tools.py` and exposed to **`gemini-3.5-flash-lite`** through Gemini’s native function-calling API (manual dispatch loop in `src/agent_orchestrator.py` with automatic function calling disabled).
+During Week 4, the team moved beyond answer generation by exposing four explicit tools to Gemini through a manual function-calling loop in `src/agent_orchestrator.py`. Automatic function calling is disabled so the application can intercept high-impact actions.
 
-The model decides **when** to invoke each tool based on the user task—not a hardcoded Python pipeline. Low-risk tools (`get_reorder_status`, `get_supplier_quotations`, `create_requisition_draft`) run immediately; **`route_requisition_for_approval`** is staged behind an explicit CLI **y/n human confirmation** gate before any state change.
+`get_supplier_quotations` reads current rows from `data/quotations.csv`. `get_reorder_status` returns the deterministic reorder decision. `create_requisition_draft` writes a DRAFT record to `data/requisitions.json` without approving spend. `route_requisition_for_approval` changes status to PENDING_APPROVAL only after an explicit CLI yes/no confirmation.
 
----
+The team tested missing parameters, unauthorized or unknown tools, expired and malformed quotations, unavailable Gemini responses and human decline of routing. A live demonstration on ITEM-004 shows the model selecting tools and drafting a requisition on the cheapest valid quote.
 
-## 2. What Was Built
+### 2. Key Engineering Decisions
 
-### Tools (see `docs/tool-catalogue.md`)
+Tool contracts are enforced in Python. The model may choose when to call a tool, but it cannot bypass quantity, quotation-ownership, expiry or status checks.
 
-| Tool                               | Purpose                                    |
-| :--------------------------------- | :----------------------------------------- |
-| `get_supplier_quotations`        | Read quotes from`data/quotations.csv`    |
-| `get_reorder_status`             | Expose deterministic reorder decision      |
-| `create_requisition_draft`       | Persist DRAFT to`data/requisitions.json` |
-| `route_requisition_for_approval` | DRAFT → PENDING_APPROVAL (gated)          |
+Only routing is gated. Draft creation is treated as a low-risk simulated side effect, matching the assignment requirement.
 
-### Orchestration
+The Week 2/3 comparison prompts still forbid picking a winner. The agent may draft against a quote the user asked for; a human must still approve routing.
 
-- **`src/agent_orchestrator.py`:** Multi-turn tool loop, transcript logging, `--demo` mode.
-- **`src/requisition_store.py`:** JSON persistence with thread-safe updates.
-- **`src/procure_data.py`:** Shared CSV loaders aligned with `main.py`.
+### 3. Challenges
 
-### Architecture
+The main challenge was keeping Gemini from executing routing without a human. Disabling automatic function calling and staging `route_requisition_for_approval` solves this in the CLI. A headless deployment would need an equivalent approval UI.
 
-- **`docs/architecture/agent-architecture.md`:** Full Week 2 → 3 → 4 flow diagram.
-- **`docs/tool-catalogue.md`:** Input/output schemas, authorization, failure behavior.
+A second challenge was distinguishing LLM risk flags from tool validation. Week 3 false `[MISSING TERMS]` alerts do not affect drafts because expiry and quotation membership are checked in code.
 
----
+### 4. Repository and Task Evidence
 
-## 3. Demonstration
+**GitHub Repository:** https://github.com/AINEMBABAZI-KIIZA-DAVIS/BSE4104_Capstone  
+**ClickUp Project:** https://app.clickup.com/1200430000003901/v/li/1200430000006616  
+**Architecture Evidence:** `submission/WEEK4/Agent_Architecture.jpg`
 
-A live demo run (`results/week4_tool_demo.md`) shows the model autonomously calling:
+### 5. Individual Contributions
 
-1. **`get_reorder_status`** for ITEM-004 (confirms reorder need, deficit 20 cartons).
-2. **`get_supplier_quotations`** for ITEM-004 (returns Q-107 and Q-108).
-3. **`create_requisition_draft`** for 20 cartons on Q-107 (cheapest valid quote on 2026-09-16), requested by Jane Okello.
+| Member | Responsibility | Evidence |
+| :--- | :--- | :--- |
+| Nasiwa Hafswa | Tool catalogue, schemas, authorization notes | `docs/tool-catalogue.md` |
+| Armand Shematsi | Orchestrator, human approval gate, architecture | `src/agent_orchestrator.py`, `docs/architecture/agent-architecture.md` |
+| Ainembabazi Kiiza Davis | Tool implementations and requisition store | `src/tools.py`, `src/requisition_store.py` |
+| Alvin Mayega Kenneth | Failure, authorization and API-unavailable tests | `tests/test_tools.py`, `results/week4_tool_tests.md` |
+| All members | Documentation / GitHub / ClickUp | Week 4 submission pack |
 
-The transcript includes raw `[TOOL CALL]` and `[TOOL RESULT]` JSON from the orchestrator, not paraphrased summaries.
+### 6. Plan for Week 5
 
----
+During Week 5, the team will implement one bounded multi-step agent workflow with approved tools, iteration limits, stop conditions and human hand-off, and capture at least three execution traces including one failure or recovery case.
 
-## 4. Test Findings
+### 7. Week 4 Status
 
-Evidence in `results/week4_tool_tests.md` and `tests/test_tools.py`:
+**Overall status:** On track
 
-| Category                      | Finding                                                                                                                  |
-| :---------------------------- | :----------------------------------------------------------------------------------------------------------------------- |
-| **Missing parameters**  | All tools return`MISSING_PARAMETER` with field name; no crashes.                                                       |
-| **Invalid requests**    | Expired quote (Q-109), wrong-item quotation, re-route of PENDING requisition—all rejected deterministically.            |
-| **Unavailable API**     | Mocked`TimeoutError` on `generate_content`; orchestrator raises `AgentOrchestratorError` with transcript, no hang. |
-| **Malformed quotation** | Incomplete CSV row rejected as`MALFORMED_QUOTATION_RECORD` before draft creation.                                      |
-
-### Reliability / safety gaps revealed
-
-1. **False `[MISSING TERMS]` carry-over from Week 3** does not affect tools, but reminds us that LLM flags and tool validation must stay separate—which Week 4 enforces for drafts.
-2. **Human gate dependency:** Routing safety relies on CLI confirmation; a headless deployment would need an equivalent approval UI or OAuth-scoped role check.
-3. **Single JSON store:** Adequate for capstone simulation; production would need transactional DB and audit logs.
-
----
-
-## 5. Outlook: Week 5
-
-Week 5 will add a **bounded multi-turn agent loop** with session state/memory:
-
-- Carry conversation context across reorder → compare → draft → route steps.
-- Persist agent session state (selected item, draft ID, pending confirmations).
-- Retain Week 4 human gate on `route_requisition_for_approval`.
-- Optional integration with Week 3 RAG for grounded comparison inside the agent loop.
-
-Week 4 intentionally stops short of full autonomous looping—tools and the approval gate are the scope boundary.
+The system now uses explicit tools with contracts, permissions and a human gate on higher-impact routing. Week 5 will add bounded autonomy around these tools, not open-ended execution.
