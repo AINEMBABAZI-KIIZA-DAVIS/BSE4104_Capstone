@@ -1,0 +1,12 @@
+Goods Requisition Form
+
+Date: ___________
+Department: ___________
+Requested By: ___________
+Item Description: ___________
+Quantity: ___________
+Unit of Measure: ___________
+Estimated Unit Price (UGX): ___________
+Total Estimated Price (UGX): ___________
+Purpose of Purchase: ___________
+Approved By: ___________

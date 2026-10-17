@@ -1,0 +1,16 @@
+Purchase Order (PO) Template
+
+PO Number: ___________
+Date: ___________
+Supplier Name: ___________
+Supplier Address: ___________
+
+Item No | Description | Qty | Unit Price (UGX) | Total Price (UGX)
+1. | ___________ | ___ | ___________ | ___________
+2. | ___________ | ___ | ___________ | ___________
+
+Subtotal: ___________
+VAT (18%): ___________
+Total Amount: ___________
+
+Authorized Signature: ___________

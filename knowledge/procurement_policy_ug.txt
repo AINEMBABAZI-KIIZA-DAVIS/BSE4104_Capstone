@@ -1,0 +1,9 @@
+Procurement Policy for Small Businesses in Uganda
+Objective: To ensure value for money, transparency, and fairness in all procurement activities.
+
+Thresholds:
+- Micro-purchases (Under UGX 500,000): Direct procurement allowed.
+- Small purchases (UGX 500,000 - 5,000,000): Minimum of three quotes required.
+- Large purchases (Over UGX 5,000,000): Open tendering required.
+
+Local Preference: Preference is given to locally registered suppliers within Uganda.
