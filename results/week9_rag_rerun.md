@@ -153,3 +153,64 @@ The answer cannot be determined from the available knowledge corpus. None of the
 ```
 
 ---
+
+## 3. Failure Re-Test Verifications (F-01 and F-02)
+
+### RQ-10 Live Re-Test (Evaluating Failure F-02)
+
+**Question:** What dispute resolution mechanism should be in a supplier contract?  
+**Pipeline:** `python3 src/rag_reorder_checker.py --question "What dispute resolution mechanism should be in a supplier contract?"`  
+**Execution Timestamp:** 2026-10-18T23:05:59  
+**Retrieved Chunks:**
+- `supplier_code_of_conduct_addendum.txt` (chunk 0, score=0.6061)
+- `supplier_terms_conditions.txt` (chunk 0, score=0.6054)
+- `contract_negotiation_guidelines.txt` (chunk 0, score=0.6035)
+- `supplier_code_of_conduct.txt` (chunk 0, score=0.5963)
+
+**Generated Response:**
+```markdown
+### POLICY / TEMPLATE ANSWER [RAG v1.0]
+
+**Question:** What dispute resolution mechanism should be in a supplier contract?
+
+**Answer:**
+The available knowledge corpus states that dispute resolution mechanisms should be a focus during contract negotiations (per `contract_negotiation_guidelines.txt`). However, the corpus does not define specific methods, steps, or required dispute resolution clauses (such as arbitration, mediation, or court jurisdiction). 
+
+Per `supplier_code_of_conduct_addendum.txt`, criminal penalties, court jurisdiction, and monetary fine schedules are not specified in the supplier addendum and are instead governed by applicable law and separate legal contracts.
+
+**SOURCES USED:**
+- contract_negotiation_guidelines.txt (mentions dispute resolution as a key negotiation clause)
+- supplier_code_of_conduct_addendum.txt (mentions that jurisdiction and fines are governed by applicable law and separate contracts)
+```
+
+**Status of F-02:** **FIXED.**  
+In Week 3, the model failed by treating a partially covered topic as an all-or-nothing refusal (*"Cannot determine from the available knowledge corpus"* with *SOURCES USED: None*). In this live re-test, the model correctly produced a nuanced partial answer: it confirmed dispute resolution is a recognized negotiation focus area per `contract_negotiation_guidelines.txt`, explicitly distinguished that specific procedural mechanisms are not prescribed in the corpus, and cited both relevant documents in `SOURCES USED`.
+
+---
+
+### ITEM-001 Live Comparison Re-Test (Evaluating Failure F-01)
+
+**Item:** `ITEM-001` (Printing Paper A4 80gsm, deficit 28 reams, 3 quotations)  
+**Pipeline:** `python3 src/rag_reorder_checker.py --items ITEM-001`  
+**Execution Timestamp:** 2026-10-18T23:06:19  
+**Retrieved Chunks:**
+- `quotation_evaluation_criteria_sme.txt` (chunk 0, score=0.7154)
+- `sme_reorder_policy.txt` (chunk 0, score=0.7048)
+- `procurement_policy_ug.txt` (chunk 0, score=0.6731)
+- `vendor_evaluation_criteria.txt` (chunk 0, score=0.6675)
+
+**Generated Quotation Table & Alerts:**
+```markdown
+#### 1. Quotation Summary Table
+| Quotation ID | Supplier Name | Unit Price (UGX) | Available Qty | Delivery Terms | Validity Status | Notes / Flags |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| Q-101 | Kampala Modern Stationers Ltd | 24,000 | 100 | Delivery within 2 business days | Valid (2026-10-15) | Free delivery within Kampala central |
+| Q-102 | Uganda Paper & Stationery Mills | 22,500 | 500 | 5-7 business days transit time | Valid (2026-10-30) | Bulk warehouse dispatch from Jinja |
+| Q-103 | Crested Office Supplies | 26,000 | 50 | Same-day courier dispatch | Valid (2026-09-30) | Payment terms: Cash on delivery |
+
+#### 3. Critical Alerts & Risk Observations
+- No critical risk flags triggered (all quotes are valid, delivery terms are present, no extreme price outliers, adequate quantities available, and multiple quotes are on file).
+```
+
+**Status of F-01:** **FIXED.**  
+In Week 3, the model raised a false `[MISSING TERMS - CLARIFICATION REQUIRED]` alert on Q-103 (Crested Office Supplies) despite `delivery_terms` being present (*Same-day courier dispatch*). In this live re-test using the tightened `prompt_rag_v1.0.txt`, Q-103 contains no false alert (notes only state *"Payment terms: Cash on delivery"*), and Critical Alerts confirms that delivery terms are recognized as present for all three quotes without triggering unneeded clarification loops.

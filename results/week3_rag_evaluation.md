@@ -106,7 +106,7 @@ Grounding highlights:
 | Policy question live passes (Week 3 live only) | 9 / 10 executed (RQ-01, 03, 04, 05, 06, 07, 08, 09, 11) |
 | Policy question partial fails | 1 / 15 (RQ-10 / F-02 partial-answer handling) |
 | Comparison-mode grounding issues | 1 (F-01 false missing terms on ITEM-001; not a policy question) |
-| Note on prior 13/15 summary | Prior draft listed 13/15 by erroneously subtracting comparison-mode F-01 from policy question passes. |
+| Note on 13/15 vs 14/15 | Counting directly from the table yields 14 passes (or 9 among live runs); the 13/15 figure in the original summary was an error. |
 | Hallucinated factual answers on unanswerable set | 0 observed |
 | Comparison-mode integration | 1 item (ITEM-001) — grounded policy notes present |
 

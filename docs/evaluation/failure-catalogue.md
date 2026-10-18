@@ -10,8 +10,8 @@ At least five genuine failures observed during Weeks 2–7, with remediation and
 **Observed:** Model flagged *Same-day courier dispatch* as `[MISSING TERMS]` because transport cost responsibility was not in the CSV.  
 **Impact:** Unnecessary clarification loop for the store manager.  
 **Remediation:** `prompts/prompt_rag_v1.0.txt` now flags `[MISSING TERMS]` only when Delivery Terms is blank or `[Not Specified]`. Transport-cost ambiguity is a separate note.  
-**Re-test:** Prompt contract updated. Live Gemini comparison was not re-billed in this run; the deterministic Week 7 suite does not score LLM flags. Residual risk: a future model may still over-flag if the prompt is ignored.  
-**Status:** Mitigated in prompt; residual model risk documented.
+**Re-test:** Re-run live against Gemini in Week 9 (`python3 src/rag_reorder_checker.py --items ITEM-001`). Q-103 notes state "Payment terms: Cash on delivery" with delivery terms recognized and no `[MISSING TERMS]` flag in the table or Critical Alerts (`results/week9_rag_rerun.md`).  
+**Status:** Fixed.
 
 ---
 
@@ -20,8 +20,8 @@ At least five genuine failures observed during Weeks 2–7, with remediation and
 **When:** Week 3 RQ-10, dispute-resolution mechanism  
 **Observed:** Corpus names dispute resolution as a negotiation focus; model answered “Cannot determine” and cited no sources.  
 **Remediation:** Policy Question Mode now requires a PARTIAL answer when a retrieved source mentions the topic but does not prescribe the mechanism.  
-**Re-test:** Prompt updated. Full live RAG re-run not executed in Week 7 (API-bound). Guarded by documented residual limitation.  
-**Status:** Mitigated in prompt; residual.
+**Re-test:** Re-run live against Gemini in Week 9 (`python3 src/rag_reorder_checker.py --question "What dispute resolution mechanism should be in a supplier contract?"`). The model returned a nuanced partial answer explaining that dispute resolution is a negotiation focus per `contract_negotiation_guidelines.txt` while noting specific mechanisms are governed by law, citing both sources in `SOURCES USED` (`results/week9_rag_rerun.md`).  
+**Status:** Fixed.
 
 ---
 

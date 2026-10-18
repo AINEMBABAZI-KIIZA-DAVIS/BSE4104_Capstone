@@ -79,12 +79,12 @@ System responses require a `RELEVANT KNOWLEDGE` block and an explicit `SOURCES U
   - *Answerable (4 executed live):* RQ-01, RQ-03, RQ-04, and RQ-05 were run live and passed, citing template fields, quotation thresholds (minimum 3 quotes for UGX 500,000–5,000,000), evaluation weights (40/30/15/15), and 30-day payment terms. RQ-02 was only retrieval-verified in Week 3 ("would list" required fields) and was not sent to Gemini for generation.
   - *Partially Answerable (5 executed live):* All 5 were run live. The pipeline passed 4 cases by maintaining strict boundaries: RQ-06 refused to answer inventory thresholds (correctly citing that stock data lives in `inventory.csv` rather than policy text), RQ-07 noted the absence of a late-delivery penalty schedule, RQ-08 identified eco-guidelines without inventing certifications, and RQ-09 explained the >5M tendering rule. RQ-10 failed partially (Failure F-02): the retrieved document cited dispute resolution as a negotiation topic, but because no specific mechanism was prescribed, the model gave an all-or-nothing refusal rather than a partial answer.
   - *Deliberately Unanswerable (1 executed live):* Only RQ-11 was run live, correctly refusing to answer unit prices from policy documents despite noisy top-4 retrieval (Failure F-03). RQ-12 through RQ-15 were not executed in Week 3 and were marked "assumed" in the original evaluation report.
-- **Resolution of Week 3 13/15 vs. 14/15 Inconsistency:** The Week 3 evaluation table recorded 14 passes and 1 partial fail (treating the 5 unexecuted cases as assumed passes). The summary statistics section erroneously reported "13 / 15 clear passes" because it subtracted both Failure F-02 and Failure F-01 (a false missing-terms flag that occurred during the separate ITEM-001 quotation-comparison run, not within the 15 policy questions). Counting strictly from the policy questions table yields 14/15 (or 9/10 among questions executed live).
-- **Week 9 Live RAG Verification:** To eliminate unexecuted assumptions, all 5 remaining questions were executed live against `gemini-3.5-flash-lite` via `src/rag_reorder_checker.py` (`results/week9_rag_rerun.md`):
+- **Recount of Week 3 Table:** Counting directly from the Week 3 evaluation table yields 14 passes and 1 partial fail (or 9 passes and 1 partial fail among the 10 questions executed live in Week 3). The summary statistics line citing "13 / 15" does not match the direct table recount.
+- **Week 9 Live RAG Verification:** To eliminate unexecuted assumptions and verify prompt mitigations, live runs were executed against `gemini-3.5-flash-lite` via `src/rag_reorder_checker.py` (`results/week9_rag_rerun.md`):
   - *RQ-02 (Answerable):* **PASS.** Grounded response listing required quotation fields (supplier, UGX unit price, quantity, delivery location/lead time, validity, MOQ notes) citing `quotation_evaluation_criteria_sme.txt` and `sme_reorder_policy.txt`.
+  - *RQ-10 (Evaluating F-02):* **FIXED / PASS.** Rather than an uninformative refusal, the model generated a grounded partial answer confirming dispute resolution is a negotiation focus area while noting specific mechanisms are governed by law, citing `contract_negotiation_guidelines.txt` and `supplier_code_of_conduct_addendum.txt`.
   - *RQ-12 to RQ-15 (Unanswerable):* **PASS (4/4).** All four produced clean, zero-hallucination refusals: RQ-12 stated no cleaning contract award history exists; RQ-13 confirmed no numerical legal liability cap is specified; RQ-14 stated no preferred toner suppliers are listed; and RQ-15 refused the external VAT query with `SOURCES USED: None – question outside corpus scope`.
-
-Grounding was also verified in Quotation Comparison Mode on `ITEM-001` (deficit 28 reams), correctly citing the 3-quote rule, applying risk tags, and outputting verified sources.
+  - *ITEM-001 Comparison (Evaluating F-01):* **FIXED / PASS.** In live comparison on `ITEM-001` (deficit 28 reams), Q-103 notes state "Payment terms: Cash on delivery" without triggering any false `[MISSING TERMS]` flag; Critical Alerts confirms no risk flags were triggered.
 
 ---
 
@@ -175,7 +175,7 @@ All controls are implemented in `src/guardrails.py` and wired through `src/bound
 | Prompt-injection | Regex covers `ignore.*previous instructions`, `award.*contract`, `approve.*payment`, `drop table` | EV-20, EV-21, EV-22 |
 | Output / side-effect bound | Draft status is `DRAFT`; the system cannot create a PO or execute payment | EV-25 leaves `DRAFT` |
 
-Failure catalogue: six genuine issues. Fixed and re-tested in code: F-04 (SDK `id`), F-05 (expired-quote recovery), F-06 (retrieve import exit). Prompt-mitigated: F-01, F-02. Architectural mitigation: F-03 (prices via tools, not RAG).
+Failure catalogue: six genuine issues. Fixed and re-tested in code: F-04 (SDK `id`), F-05 (expired-quote recovery), F-06 (retrieve import exit). Fixed and re-tested live in Week 9: F-01 (no false missing terms), F-02 (grounded partial answer). Architectural mitigation: F-03 (prices via tools, not RAG).
 
 ---
 
@@ -207,9 +207,9 @@ Five architectural decisions were made deliberately, each with an engineering ra
 
 ## 10. Results, Limitations and Professional Reflection
 
-**What works.** Deterministic reorder gating; versioned comparison prompts; RAG with citations; four tools with a human gate; a bounded prepare-requisition loop that recovers from an expired cheapest quote; memory that prefills without awarding; a 32/32 evaluation suite.
+**What works.** Deterministic reorder gating; versioned comparison prompts; RAG with citations; four tools with a human gate; a bounded prepare-requisition loop that recovers from an expired cheapest quote; memory that prefills without awarding; a 32/32 evaluation suite; live verified RAG grounding and refusal behaviors.
 
-**What does not.** Live RAG still depends on a small corpus. Prompt edits for F-01/F-02 were not fully re-run against Gemini. Approval is CLI-only. Memory is a single JSON file.
+**What does not.** Live RAG still depends on a small 12-chunk corpus. Approval is CLI-only. Memory is a single local JSON file.
 
 **Human responsibility.** The store manager still selects the supplier and authorizes spend. The team owns the generated code, tests and the decision to keep purchasing outside the agent.
 
