@@ -1,6 +1,6 @@
 # Known Limitations (Week 8)
 
-1. **RAG false flags (F-01) and partial answers (F-02) resolved in live re-test** — verified live against Gemini in Week 9 (`results/week9_rag_rerun.md`): Q-103 no longer triggers false `[MISSING TERMS]` alerts, and RQ-10 now produces a grounded partial answer citing negotiation guidelines rather than an uninformative refusal.
+1. **RAG false flags (F-01) and partial answers (F-02)** — Mitigated. Not reproduced in one live re-test on 2026-10-18 (n=1, temperature 0.1). Residual risk: the model may still vary between runs. Note that for RQ-10 the answer's second citation (`supplier_code_of_conduct_addendum.txt`) was only loosely relevant.
 2. **Small 12-chunk corpus** — `top_k=4` is often noisy for operational questions. Prices and stock must be read from CSV tools.
 3. **Human approval is CLI-only** — a headless or web deployment needs an equivalent confirmation UI.
 4. **Memory is a local JSON file** — not multi-user, not encrypted at rest, 90-day prune only.

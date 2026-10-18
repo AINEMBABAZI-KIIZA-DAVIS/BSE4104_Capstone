@@ -183,8 +183,8 @@ Per `supplier_code_of_conduct_addendum.txt`, criminal penalties, court jurisdict
 - supplier_code_of_conduct_addendum.txt (mentions that jurisdiction and fines are governed by applicable law and separate contracts)
 ```
 
-**Status of F-02:** **FIXED.**  
-In Week 3, the model failed by treating a partially covered topic as an all-or-nothing refusal (*"Cannot determine from the available knowledge corpus"* with *SOURCES USED: None*). In this live re-test, the model correctly produced a nuanced partial answer: it confirmed dispute resolution is a recognized negotiation focus area per `contract_negotiation_guidelines.txt`, explicitly distinguished that specific procedural mechanisms are not prescribed in the corpus, and cited both relevant documents in `SOURCES USED`.
+**Status of F-02:** **Mitigated. Not reproduced in one live re-test on 2026-10-18 (n=1, temperature 0.1). Residual risk: the model may still vary between runs.**  
+In Week 3, the model failed by treating a partially covered topic as an all-or-nothing refusal (*"Cannot determine from the available knowledge corpus"* with *SOURCES USED: None*). In this live re-test, the model correctly produced a nuanced partial answer: it confirmed dispute resolution is a recognized negotiation focus area per `contract_negotiation_guidelines.txt`, explicitly distinguished that specific procedural mechanisms are not prescribed in the corpus, and cited both relevant documents in `SOURCES USED`. Note that the answer's second citation (`supplier_code_of_conduct_addendum.txt`) was only loosely relevant. Residual risk: the model may still vary between runs.
 
 ---
 
@@ -212,5 +212,5 @@ In Week 3, the model failed by treating a partially covered topic as an all-or-n
 - No critical risk flags triggered (all quotes are valid, delivery terms are present, no extreme price outliers, adequate quantities available, and multiple quotes are on file).
 ```
 
-**Status of F-01:** **FIXED.**  
-In Week 3, the model raised a false `[MISSING TERMS - CLARIFICATION REQUIRED]` alert on Q-103 (Crested Office Supplies) despite `delivery_terms` being present (*Same-day courier dispatch*). In this live re-test using the tightened `prompt_rag_v1.0.txt`, Q-103 contains no false alert (notes only state *"Payment terms: Cash on delivery"*), and Critical Alerts confirms that delivery terms are recognized as present for all three quotes without triggering unneeded clarification loops.
+**Status of F-01:** **Mitigated. Not reproduced in one live re-test on 2026-10-18 (n=1, temperature 0.1). Residual risk: the model may still vary between runs.**  
+In Week 3, the model raised a false `[MISSING TERMS - CLARIFICATION REQUIRED]` alert on Q-103 (Crested Office Supplies) despite `delivery_terms` being present (*Same-day courier dispatch*). In this live re-test using the tightened `prompt_rag_v1.0.txt`, Q-103 contains no false alert (notes only state *"Payment terms: Cash on delivery"*), and Critical Alerts confirms that delivery terms are recognized as present for all three quotes without triggering unneeded clarification loops. Residual risk: the model may still vary between runs.

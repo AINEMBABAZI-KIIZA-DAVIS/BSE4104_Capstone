@@ -222,7 +222,7 @@ def build_pptx(path: Path) -> None:
     _title_box(s, "8. Known limitations")
     _bullets(s, [
         "Small 12-chunk corpus — RAG top-4 can be noisy for price questions (use CSV tools)",
-        "F-01 / F-02 prompt fixes were not fully re-run on live Gemini",
+        "F-01/F-02: mitigated and not reproduced in live re-test (n=1, temp 0.1); residual model risk remains",
         "Human approval is CLI-only; memory is a local JSON file",
         "MCP adapter is in-process, not a networked server",
         "Gemini is required for Weeks 2–4; Weeks 5–7 run without an API key",

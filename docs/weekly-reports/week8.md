@@ -22,7 +22,7 @@ The team kept Gemini optional for the bounded agent so examiners can run the 32-
 
 ### 3. Challenges
 
-The main remaining limitation is live RAG re-evaluation of F-01 and F-02 after the prompt edit. The report states this honestly.
+F-01 and F-02 were mitigated in prompts and not reproduced in a live re-test on 2026-10-18 (n=1, temperature 0.1), though residual model variability across runs remains a documented limitation.
 
 A second limitation is the small 12-chunk corpus and the CLI-only human gate. Both are in-scope for an eight-week capstone and are listed as future work.
 

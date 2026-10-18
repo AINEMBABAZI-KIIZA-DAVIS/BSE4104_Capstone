@@ -31,7 +31,7 @@ Open `results/week7_evaluation.md` (32/32) or a JSONL line from `results/traces/
 python src/bounded_agent.py --item ITEM-005
 ```
 
-Q-109 expired → `QUOTATION_EXPIRED` → re-plan Q-110. Also mention F-01 false missing-terms if asked about RAG limits.
+Q-109 expired → `QUOTATION_EXPIRED` → re-plan Q-110. Also mention F-01/F-02 prompt mitigations and live re-test (n=1, temp 0.1) with residual model variability if asked about RAG limits.
 
 ## Slide 6 — Guardrails and lessons (1–2 min)
 
