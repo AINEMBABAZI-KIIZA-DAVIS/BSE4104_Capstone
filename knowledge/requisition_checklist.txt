@@ -1,0 +1,7 @@
+Requisition Approval Checklist
+
+- Is the requested item/service in the approved annual budget?
+- Has the requisition form been signed by the department head?
+- Are detailed specifications provided?
+- Is the estimated cost within the allowable threshold?
+- Justification for the purchase is clearly stated.

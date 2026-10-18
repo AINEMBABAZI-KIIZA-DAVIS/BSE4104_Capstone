@@ -1,0 +1,26 @@
+Standard Quotation Evaluation Criteria for SME Small Purchases
+
+Scope: Applies to internal quotation comparison for replenishment and small purchases (typically under UGX 5,000,000) before requisition drafting.
+
+Required Quotation Fields:
+- Unit price in Uganda Shillings (UGX)
+- Quantity available relative to replenishment need
+- Delivery terms (lead time, location, who pays transport)
+- Quotation validity date (valid_until)
+- Optional notes (MOQ, split-order constraints, payment terms if non-standard)
+
+Evaluation Dimensions (for human reviewer; AI compares objectively, does not score or select):
+1. Total financial outlay: unit price × quantity needed to cover deficit (including MOQ surplus if applicable)
+2. Fulfillment coverage: whether available quantity meets or exceeds the replenishment deficit
+3. Delivery speed and logistics: lead time and transport terms affecting total landed cost
+4. Validity and actionability: expired quotes are inactionable until refreshed
+5. Policy compliance: number of quotes meets procurement_policy_ug.txt thresholds for the purchase value band
+
+Risk Flags the Reviewer Should Note:
+- [EXPIRED - INACTIONABLE]: validity date before operating reference date
+- [MISSING TERMS - CLARIFICATION REQUIRED]: delivery or payment terms not specified
+- [SUPPLY SHORTFALL]: available quantity less than deficit (split order required)
+- [PRICING ANOMALY]: unit price more than 2.5× the median of competing quotes
+- [SINGLE QUOTATION - NO COMPETITION]: only one quote on file
+
+Cross-Reference: Weighting for formal vendor scoring (Price 40%, Quality 30%, Experience 15%, Delivery 15%) is documented in vendor_evaluation_criteria.txt. Quotation comparison for reorder does not apply those weights automatically; it surfaces tradeoffs for human decision.
