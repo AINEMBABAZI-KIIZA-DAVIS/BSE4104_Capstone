@@ -79,3 +79,93 @@ Timestamp: 2026-09-17T02:40:47.794808
   [3] quotation_evaluation_criteria_sme.txt (chunk 0, score=0.5771)
   [4] procurement_policy_ug.txt (chunk 0, score=0.5691)
 ============================================================
+
+============================================================
+Context: Q: What terms should a supplier quotation specify?
+Timestamp: 2026-10-18T22:57:20.865661
+  [1] quotation_evaluation_criteria_sme.txt (chunk 0, score=0.6524)
+  [2] supplier_terms_conditions.txt (chunk 0, score=0.6349)
+  [3] sme_reorder_policy.txt (chunk 0, score=0.614)
+  [4] vendor_evaluation_criteria.txt (chunk 0, score=0.6118)
+============================================================
+
+============================================================
+Context: Q: Which supplier won the last cleaning supplies contract?
+Timestamp: 2026-10-18T22:57:44.082833
+  [1] vendor_evaluation_criteria.txt (chunk 0, score=0.5837)
+  [2] supplier_terms_conditions.txt (chunk 0, score=0.5696)
+  [3] supplier_code_of_conduct.txt (chunk 0, score=0.5646)
+  [4] procurement_policy_ug.txt (chunk 0, score=0.5642)
+============================================================
+
+============================================================
+Context: Q: What is the exact legal liability cap in our standard contra
+Timestamp: 2026-10-18T22:57:53.901293
+  [1] supplier_terms_conditions.txt (chunk 0, score=0.5717)
+  [2] contract_negotiation_guidelines.txt (chunk 0, score=0.5592)
+  [3] supplier_code_of_conduct_addendum.txt (chunk 0, score=0.5582)
+  [4] quotation_evaluation_criteria_sme.txt (chunk 0, score=0.5558)
+============================================================
+
+============================================================
+Context: Q: What is the name of our preferred toner cartridge supplier?
+Timestamp: 2026-10-18T22:58:03.557529
+  [1] vendor_evaluation_criteria.txt (chunk 0, score=0.5812)
+  [2] supplier_terms_conditions.txt (chunk 0, score=0.5777)
+  [3] supplier_code_of_conduct.txt (chunk 0, score=0.5756)
+  [4] supplier_code_of_conduct_addendum.txt (chunk 0, score=0.57)
+============================================================
+
+============================================================
+Context: Q: What is the current VAT registration number of Kampala Offic
+Timestamp: 2026-10-18T22:58:13.288865
+  [1] purchase_order_template.txt (chunk 0, score=0.591)
+  [2] supplier_terms_conditions.txt (chunk 0, score=0.5781)
+  [3] procurement_policy_ug.txt (chunk 0, score=0.5738)
+  [4] supplier_code_of_conduct.txt (chunk 0, score=0.5713)
+============================================================
+
+============================================================
+Context: Q: What terms should a supplier quotation specify?
+Timestamp: 2026-10-18T22:59:08.787526
+  [1] quotation_evaluation_criteria_sme.txt (chunk 0, score=0.6524)
+  [2] supplier_terms_conditions.txt (chunk 0, score=0.6349)
+  [3] sme_reorder_policy.txt (chunk 0, score=0.614)
+  [4] vendor_evaluation_criteria.txt (chunk 0, score=0.6118)
+============================================================
+
+============================================================
+Context: Q: Which supplier won the last cleaning supplies contract?
+Timestamp: 2026-10-18T22:59:18.476992
+  [1] vendor_evaluation_criteria.txt (chunk 0, score=0.5837)
+  [2] supplier_terms_conditions.txt (chunk 0, score=0.5696)
+  [3] supplier_code_of_conduct.txt (chunk 0, score=0.5646)
+  [4] procurement_policy_ug.txt (chunk 0, score=0.5642)
+============================================================
+
+============================================================
+Context: Q: What is the exact legal liability cap in our standard contra
+Timestamp: 2026-10-18T22:59:28.419608
+  [1] supplier_terms_conditions.txt (chunk 0, score=0.5717)
+  [2] contract_negotiation_guidelines.txt (chunk 0, score=0.5592)
+  [3] supplier_code_of_conduct_addendum.txt (chunk 0, score=0.5582)
+  [4] quotation_evaluation_criteria_sme.txt (chunk 0, score=0.5558)
+============================================================
+
+============================================================
+Context: Q: What is the name of our preferred toner cartridge supplier?
+Timestamp: 2026-10-18T22:59:39.295155
+  [1] vendor_evaluation_criteria.txt (chunk 0, score=0.5812)
+  [2] supplier_terms_conditions.txt (chunk 0, score=0.5777)
+  [3] supplier_code_of_conduct.txt (chunk 0, score=0.5756)
+  [4] supplier_code_of_conduct_addendum.txt (chunk 0, score=0.57)
+============================================================
+
+============================================================
+Context: Q: What is the current VAT registration number of Kampala Offic
+Timestamp: 2026-10-18T22:59:48.926189
+  [1] purchase_order_template.txt (chunk 0, score=0.591)
+  [2] supplier_terms_conditions.txt (chunk 0, score=0.5781)
+  [3] procurement_policy_ug.txt (chunk 0, score=0.5738)
+  [4] supplier_code_of_conduct.txt (chunk 0, score=0.5713)
+============================================================
