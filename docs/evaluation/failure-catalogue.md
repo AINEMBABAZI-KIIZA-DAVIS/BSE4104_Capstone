@@ -10,8 +10,8 @@ At least five genuine failures observed during Weeks 2–7, with remediation and
 **Observed:** Model flagged *Same-day courier dispatch* as `[MISSING TERMS]` because transport cost responsibility was not in the CSV.  
 **Impact:** Unnecessary clarification loop for the store manager.  
 **Remediation:** `prompts/prompt_rag_v1.0.txt` now flags `[MISSING TERMS]` only when Delivery Terms is blank or `[Not Specified]`. Transport-cost ambiguity is a separate note.  
-**Re-test:** Re-run live against Gemini on 2026-10-18 (`python3 src/rag_reorder_checker.py --items ITEM-001`). Q-103 notes state "Payment terms: Cash on delivery" with delivery terms recognized and no `[MISSING TERMS]` flag in the table or Critical Alerts (`results/week9_rag_rerun.md`).  
-**Status:** Mitigated. Not reproduced in one live re-test on 2026-10-18 (n=1, temperature 0.1). Residual risk: the model may still vary between runs.
+**Re-test:** Re-run live against Gemini on 2026-10-18 (`python3 src/rag_reorder_checker.py --items ITEM-001`). Q-103 notes state "Payment terms: Cash on delivery" with delivery terms recognized and no `[MISSING TERMS]` flag in the table or Critical Alerts (`results/live_rag_retest.md`).  
+**Status:** Mitigated. The failure did not recur in one live re-test (n=1, temperature 0.1); residual variability remains.
 
 ---
 
@@ -20,8 +20,8 @@ At least five genuine failures observed during Weeks 2–7, with remediation and
 **When:** Week 3 RQ-10, dispute-resolution mechanism  
 **Observed:** Corpus names dispute resolution as a negotiation focus; model answered “Cannot determine” and cited no sources.  
 **Remediation:** Policy Question Mode now requires a PARTIAL answer when a retrieved source mentions the topic but does not prescribe the mechanism.  
-**Re-test:** Re-run live against Gemini on 2026-10-18 (`python3 src/rag_reorder_checker.py --question "What dispute resolution mechanism should be in a supplier contract?"`). The model returned a nuanced partial answer explaining that dispute resolution is a negotiation focus per `contract_negotiation_guidelines.txt` while noting specific mechanisms are governed by law, citing both sources in `SOURCES USED` (`results/week9_rag_rerun.md`). Note that the answer's second citation (`supplier_code_of_conduct_addendum.txt`) was only loosely relevant.  
-**Status:** Mitigated. Not reproduced in one live re-test on 2026-10-18 (n=1, temperature 0.1). Residual risk: the model may still vary between runs.
+**Re-test:** Re-run live against Gemini on 2026-10-18 (`python3 src/rag_reorder_checker.py --question "What dispute resolution mechanism should be in a supplier contract?"`). The model returned a nuanced partial answer explaining that dispute resolution is a negotiation focus per `contract_negotiation_guidelines.txt` while noting specific mechanisms are governed by law, citing both sources in `SOURCES USED` (`results/live_rag_retest.md`). Note that the answer's second citation (`supplier_code_of_conduct_addendum.txt`) was only loosely relevant.  
+**Status:** Mitigated. The failure did not recur in one live re-test (n=1, temperature 0.1); residual variability remains.
 
 ---
 

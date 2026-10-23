@@ -22,7 +22,7 @@ Guardrails fail closed. An injection string or unknown tool stops the session ra
 
 ### 3. Challenges
 
-The main challenge was scoring LLM grounding (F-01, F-02) without re-spending API quota. The team updated the prompt contract and recorded residual model risk instead of claiming a live re-test.
+The main challenge at the Week 7 freeze (week ending 16 October 2026) was scoring LLM grounding (F-01, F-02) without extra Gemini calls. A later Week 8 hardening re-test is recorded in `results/live_rag_retest.md` (2026-10-18). The failure did not recur in one live re-test (n=1, temperature 0.1); residual variability remains.
 
 EV-22 (`ITEM-004; DROP TABLE`) matched the injection detector before the format check. The expected result was corrected to `INJECTION_BLOCKED`, which is the stricter and correct control.
 

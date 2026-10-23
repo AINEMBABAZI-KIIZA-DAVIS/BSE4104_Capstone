@@ -141,6 +141,16 @@ def main() -> None:
     else:
         lines.extend(["", "No failed scenarios in this run.", ""])
 
+    lines.extend(
+        [
+            "",
+            "## Scope of this suite",
+            "",
+            "The 32-scenario suite tests the deterministic layer (reorder gate, validation, guardrails, roles, confirmation, stop conditions). It does not evaluate LLM comparison quality. LLM behaviour is covered by the 10-case Week 2 table and the 15-question Week 3 RAG set; a live Gemini scenario set is future work.",
+            "",
+        ]
+    )
+
     out = PROJECT_ROOT / "results" / "week7_evaluation.md"
     out.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"{passed}/{len(rows)} passed")

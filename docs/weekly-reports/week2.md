@@ -22,7 +22,7 @@ $$
 1. **Preserve Legacy for Transparency:** Rather than deleting the previous tender checker code, all related files (`main.py`, `checklist.txt`, `submission_*.txt`, baseline results, and cache files) were moved into `legacy/` accompanied by `legacy/README.md`. This maintains working-tree transparency and auditability.
 2. **Rebuild Week 2 Strictly to Charter:** Week 2 has been completely rebuilt from the ground up, focusing exclusively on:
    - Synthetic SME inventory and quotation datasets in CSV format.
-   - Foundation model evaluation and selection (`gemini-3.5-flash-lite` / `gemini-3.6-flash`).
+   - Foundation model evaluation and selection. Current code defaults: `gemini-3.5-flash-lite` for comparison and tools; `models/gemini-embedding-001` for embeddings.
    - Deterministic procedural logic in Python for stock threshold evaluation.
    - Formal Prompt Specifications (v1.0 and v1.1) for objective quotation comparison.
    - A rigorous 10-case evaluation suite and version history log.

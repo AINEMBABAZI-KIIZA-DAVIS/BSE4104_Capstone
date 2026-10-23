@@ -183,9 +183,9 @@ def build_pptx(path: Path) -> None:
     _bar(s, prs)
     _title_box(s, "5. Evidence view — evaluation and traces")
     _bullets(s, [
-        "Week 7 suite: 32 scenarios, 32 passed",
+        "Week 7 suite: 32 scenarios, 32 passed — deterministic layer only (not LLM comparison quality)",
+        "LLM behaviour is the 10-case Week 2 table and the 15-question Week 3 RAG set",
         "Categories: normal, edge, incorrect information, adversarial, tool-failure, unauthorized",
-        "Criteria: task completion, tool selection, instruction following, safety, latency",
         "Each ACT is logged with session_id, tool, latency_ms and outcome",
         "Open results/week7_evaluation.md or results/traces/week7_eval.jsonl",
     ])
@@ -222,7 +222,7 @@ def build_pptx(path: Path) -> None:
     _title_box(s, "8. Known limitations")
     _bullets(s, [
         "Small 12-chunk corpus — RAG top-4 can be noisy for price questions (use CSV tools)",
-        "F-01/F-02: mitigated and not reproduced in live re-test (n=1, temp 0.1); residual model risk remains",
+        "F-01/F-02: The failure did not recur in one live re-test (n=1, temperature 0.1); residual variability remains",
         "Human approval is CLI-only; memory is a local JSON file",
         "MCP adapter is in-process, not a networked server",
         "Gemini is required for Weeks 2–4; Weeks 5–7 run without an API key",

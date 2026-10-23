@@ -22,7 +22,7 @@ The team kept Gemini optional for the bounded agent so examiners can run the 32-
 
 ### 3. Challenges
 
-F-01 and F-02 were mitigated in prompts and not reproduced in a live re-test on 2026-10-18 (n=1, temperature 0.1), though residual model variability across runs remains a documented limitation.
+F-01 and F-02 were mitigated in prompts. The failure did not recur in one live re-test (n=1, temperature 0.1); residual variability remains. Evidence: `results/live_rag_retest.md` (2026-10-18). That file is a Week 8 hardening re-test, not a ninth project week.
 
 A second limitation is the small 12-chunk corpus and the CLI-only human gate. Both are in-scope for an eight-week capstone and are listed as future work.
 

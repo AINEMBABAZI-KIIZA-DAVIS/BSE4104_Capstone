@@ -42,25 +42,28 @@ def save_week7_architecture(path: Path) -> None:
 
 
 def save_week8_architecture(path: Path) -> None:
-    w, h = 1480, 900
+    w, h = 1480, 980
     img = Image.new("RGB", (w, h), "white")
     d = ImageDraw.Draw(img)
     title_f, box_f, small_f = _font(20, True), _font(14, True), _font(13)
-    d.text((40, 20), "ProcurePrep UG — Final System (Week 8)", fill="#111", font=title_f)
-    layers = [
-        (40, 90, "SME officer", "#E8F1FB"),
-        (40, 200, "Bounded agent + Gemini tools", "#FFF4D6"),
-        (40, 310, "Guardrails / traces / memory", "#E6F4EA"),
-        (40, 420, "CSV data + Chroma corpus", "#F4F4F4"),
-        (40, 530, "Human approval boundary", "#EDE7F6"),
+    d.text((40, 18), "ProcurePrep UG — Final architecture (Sense → Plan → Act → Observe → Stop)", fill="#111", font=title_f)
+    loop = [
+        (40, 80, "SENSE  session + memory hints", "#E8F1FB"),
+        (40, 200, "PLAN  next allow-listed tool", "#FFF4D6"),
+        (40, 320, "ACT  get status / quotes / draft", "#E6F4EA"),
+        (40, 440, "OBSERVE  result or QUOTATION_EXPIRED", "#F4F4F4"),
+        (40, 560, "STOP or RE-PLAN  (max 8 iterations)", "#EDE7F6"),
+        (40, 700, "HUMAN GATE  confirm route  —  no PO / pay / award", "#FDECEA"),
     ]
-    for x, y, label, fill in layers:
-        _draw_box(d, (x, y, 700, y + 80), label, box_f, fill=fill)
-        if y < 530:
-            _arrow(d, (370, y + 80), (370, y + 110))
-    _draw_box(d, (780, 90, 1440, 280), "Deterministic:\nreorder, validate, allow-list", small_f, fill="#E6F4EA")
-    _draw_box(d, (780, 320, 1440, 510), "Probabilistic:\ncompare, explain, draft text", small_f, fill="#E8F1FB")
-    _draw_box(d, (780, 550, 1440, 760), "Out of scope:\npayment, award, live PO", small_f, fill="#FDECEA")
+    for x, y, label, fill in loop:
+        height = 90 if y < 700 else 110
+        _draw_box(d, (x, y, 760, y + height), label, box_f, fill=fill)
+        if y < 700:
+            _arrow(d, (400, y + height), (400, y + 120 if y < 560 else y + 140))
+    _draw_box(d, (820, 80, 1440, 250), "Deterministic Python:\nreorder gate, quote expiry,\nallow-list, stop conditions", small_f, fill="#E6F4EA")
+    _draw_box(d, (820, 290, 1440, 460), "Probabilistic Gemini:\ncompare, explain, draft text\n(gemini-3.5-flash-lite)", small_f, fill="#E8F1FB")
+    _draw_box(d, (820, 500, 1440, 670), "Data:\ninventory.csv, quotations.csv\nChroma corpus (12 docs)", small_f, fill="#FFF4D6")
+    _draw_box(d, (820, 710, 1440, 860), "Out of scope:\npayment, award, live PO", small_f, fill="#FDECEA")
     path.parent.mkdir(parents=True, exist_ok=True)
     img.save(path, "JPEG", quality=92)
     print(f"  Wrote {path.relative_to(PROJECT_ROOT)}")
@@ -84,6 +87,7 @@ def main() -> None:
 
     save_week7_architecture(week7 / "Evaluation_Guardrails.jpg")
     save_week8_architecture(week8 / "Final_Architecture.jpg")
+    save_week8_architecture(PROJECT_ROOT / "docs" / "architecture" / "final-architecture.jpg")
 
     build_week1_style_progress(
         "Week 7 Progress Report",
@@ -104,6 +108,8 @@ def main() -> None:
     build_doc("Demonstration Outline", PROJECT_ROOT / "docs/presentation.md", week8 / "ProcurePrep UG Demonstration Outline.docx")
     build_doc("Known Limitations", PROJECT_ROOT / "docs/known-limitations.md", week8 / "ProcurePrep UG Known Limitations.docx")
     build_doc("Evaluation Evidence Pack", PROJECT_ROOT / "results/week7_evaluation.md", week8 / "ProcurePrep UG Evaluation Evidence Pack.docx")
+    build_doc("AI-Use Declaration", PROJECT_ROOT / "docs/ai-use-declaration.md", week8 / "ProcurePrep UG AI-Use Declaration.docx")
+    build_doc("AI Engineering Log", PROJECT_ROOT / "docs/ai-engineering-log.md", week8 / "ProcurePrep UG AI Engineering Log.docx")
     print("Done.")
 
 

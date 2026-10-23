@@ -37,6 +37,10 @@ python src/embed_store.py
 | 7 – evaluation | `python scripts/run_week7_evaluation.py` |
 | Tests | `python -m unittest discover -s tests -q` |
 
+The 32-scenario suite tests the deterministic layer (reorder gate, validation, guardrails, roles, confirmation, stop conditions). It does not evaluate LLM comparison quality.
+
+**Models in code:** comparison and function calling default to `gemini-3.5-flash-lite`; embeddings use `models/gemini-embedding-001`.
+
 ## Safety boundary
 
 - Reorder trigger: `current_stock < reorder_threshold` in Python only.

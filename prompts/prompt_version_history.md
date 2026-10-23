@@ -59,3 +59,4 @@ This document logs the evolution of the prompt specifications for the ProcurePre
   5. **Working Capital & MOQ Impact:**
      - Added rule requiring calculation of surplus units and excess capital when MOQ exceeds item deficit.
      - *Result in TC-10:* Quantified that Lugazi's 50-bag MOQ forces the purchase of 34 surplus bags, locking up **UGX 6,290,000** in excess capital.
+

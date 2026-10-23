@@ -23,7 +23,7 @@ Show: deficit 20 cartons, quotes Q-107 / Q-108, DRAFT on cheapest valid Q-107, n
 
 ## Slide 4 — Evidence view (2 min)
 
-Open `results/week7_evaluation.md` (32/32) or a JSONL line from `results/traces/week7_eval.jsonl` (session, tool, latency_ms, outcome).
+Open `results/week7_evaluation.md` (32/32) or a JSONL line from `results/traces/week7_eval.jsonl` (session, tool, latency_ms, outcome). The 32-scenario suite tests the deterministic layer (reorder gate, validation, guardrails, roles, confirmation, stop conditions). It does not evaluate LLM comparison quality. LLM behaviour is covered by the 10-case Week 2 table and the 15-question Week 3 RAG set; a live Gemini scenario set is future work.
 
 ## Slide 5 — Real failure and recovery (2 min)
 

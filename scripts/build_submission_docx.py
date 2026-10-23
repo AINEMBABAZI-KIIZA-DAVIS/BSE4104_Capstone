@@ -151,7 +151,9 @@ def add_table(doc: Document, headers: list[str], rows: list[list[str]]) -> None:
         run = p.add_run(h)
         _set_run_font(run, bold=True, size=Pt(10))
     for ri, row in enumerate(rows):
-        for ci, val in enumerate(row):
+        padded = list(row) + [""] * max(0, len(headers) - len(row))
+        padded = padded[: len(headers)]
+        for ci, val in enumerate(padded):
             cell = table.rows[ri + 1].cells[ci]
             cell.text = ""
             p = cell.paragraphs[0]
@@ -262,6 +264,27 @@ def parse_markdown_to_doc(
             continue
 
         if line.strip() == "---":
+            i += 1
+            continue
+
+        img_match = re.match(r"!\[([^\]]*)\]\(([^)]+)\)", line.strip())
+        if img_match:
+            rel = img_match.group(2)
+            candidates = [
+                Path(rel),
+                PROJECT_ROOT / rel,
+                PROJECT_ROOT / "docs" / rel,
+                (PROJECT_ROOT / "docs" / rel.lstrip("./")),
+            ]
+            img_path = next((c for c in candidates if c.is_file()), None)
+            if img_path is not None:
+                doc.add_picture(str(img_path), width=Inches(6.3))
+                cap = doc.add_paragraph()
+                run = cap.add_run(img_match.group(1))
+                _set_run_font(run, size=Pt(9), italic=True)
+                doc.add_paragraph()
+            else:
+                add_rich_paragraph(doc, line.strip())
             i += 1
             continue
 

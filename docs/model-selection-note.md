@@ -2,7 +2,7 @@
 
 **Project:** ProcurePrep UG (BSE4104 AI Agentic Capstone)
 **Task:** Automated Inventory Reorder Reasoning & Supplier Quotation Comparison
-**Selected Model:** Google Gemini 3.5 Flash-Lite (`gemini-3.5-flash-lite`) / Gemini 3.6 Flash (`gemini-3.6-flash`) via `google-genai` SDK
+**Selected Model (what the current code defaults to):** Google Gemini 3.5 Flash-Lite (`gemini-3.5-flash-lite`) via `google-genai` for comparison (`main.py`, `src/rag_reorder_checker.py`) and Week 4 function calling (`src/agent_orchestrator.py`). Embeddings use `models/gemini-embedding-001` (`src/embed_store.py`, `src/retrieve.py`). Names such as `gemini-3.6-flash` and `gemini-2.0-flash` appear only under `legacy/` from the earlier tender-checker path.
 
 ---
 
@@ -48,4 +48,4 @@ ProcurePrep UG assists Ugandan Small and Medium Enterprises (SMEs) by transformi
 
 ## 3. Conclusion & Final Selection
 
-**Gemini 2.5 Flash / Gemini 2.0 Flash** offers the optimal balance of speed, low cost, numerical reasoning, and strict constraint adherence for ProcurePrep UG's quotation comparison engine. The model operates exclusively as an explanatory reasoning engine, leaving the threshold math to deterministic code and the final procurement decision to the human store manager.
+**`gemini-3.5-flash-lite`** is the comparison and tool-calling default in the current tree. Reorder gating (`current_stock < reorder_threshold`) stays in Python. The model is used as an explanatory comparison engine. The store manager remains responsible for supplier selection and spend.
