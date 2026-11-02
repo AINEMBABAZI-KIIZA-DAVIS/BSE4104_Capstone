@@ -2,52 +2,48 @@
 
 ## Week 7 Progress Report
 
-**Project:** ProcurePrep UG — AI-Native SME Procurement-Preparation Agent  
-**Week:** Week 7  
-**Week Ending:** 16 October 2026
+**Project:** ProcurePrep UG  
+**Week ending:** 16 October 2026
 
-### 1. Work Completed
+### 1. Work completed
 
-During Week 7, the team produced a 32-scenario evaluation set covering normal, edge, incorrect-information, adversarial, tool-failure and unauthorized-action cases. All 32 scenarios passed. Criteria were task completion, tool selection, instruction following, safety violations and latency.
+We wrote 32 scenarios (the brief asked for 30). They cover normal runs, edges, bad ids, injection-style text, tool errors, and people using the wrong role. All 32 passed when we ran scripts/run_week7_evaluation.py. That runner does not call Gemini.
 
-Structured traces are written by `src/observability.py`. Guardrails in `src/guardrails.py` validate item IDs and quantities, enforce the tool allow-list, check roles, require confirmation for routing, and block prompt-injection / award-payment overrides.
+src/observability.py writes JSONL lines (session, tool, latency, outcome). src/guardrails.py checks item ids, quantity > 0, the four-name allow-list, roles, confirmation on route, and a few injection / “award the contract” / “approve payment” strings.
 
-A failure catalogue records six genuine failures from earlier weeks. Three are fixed and re-tested in code (function-response `id`, expired-quote recovery, retrieve import crash). Two RAG prompt issues are mitigated in `prompt_rag_v1.0.txt`. Retrieval noise is avoided on the agent path by using CSV tools for prices.
+The failure catalogue has six issues we actually hit. Three are fixed in code: the Gemini function-response id (F-04), expired-quote recovery (F-05), and retrieve.py used to sys.exit on a missing key (F-06). F-01 and F-02 are prompt changes. F-03 we handled by not asking RAG for prices.
 
-### 2. Key Engineering Decisions
+### 2. Decisions
 
-The evaluation runner executes the bounded agent and MCP adapter without a live Gemini call so the 32-case suite is reproducible and free. Gemini remains in Week 2/3 comparison and optional Week 4 function calling.
+The 32 tests are for the Python layer so we can re-run them in the lab without burning quota. Gemini is still used for weeks 2–3 reports and the optional week 4 demo.
 
-Guardrails fail closed. An injection string or unknown tool stops the session rather than asking the model to ignore it.
+If an injection string or unknown tool shows up, we stop. We do not ask the model to “please ignore that.”
 
-### 3. Challenges
+### 3. What went wrong
 
-The main challenge at the Week 7 freeze (week ending 16 October 2026) was scoring LLM grounding (F-01, F-02) without extra Gemini calls. A later Week 8 hardening re-test is recorded in `results/live_rag_retest.md` (2026-10-18). The failure did not recur in one live re-test (n=1, temperature 0.1); residual variability remains.
+We did not want to spend more Gemini calls during week 7 just to score RAG wording. F-01/F-02 were still listed as residual at the 16 Oct freeze. We later re-ran two of those cases on 18 Oct (results/live_rag_retest.md) as part of week 8 write-up, not as a ninth week. They did not come back on that one run (temperature 0.1). The model can still drift on another run.
 
-EV-22 (`ITEM-004; DROP TABLE`) matched the injection detector before the format check. The expected result was corrected to `INJECTION_BLOCKED`, which is the stricter and correct control.
+EV-22 put DROP TABLE in the item id. The injection regex fired before the ITEM-NNN format check. We accepted INJECTION_BLOCKED as the result because that is the stricter stop.
 
-### 4. Repository and Task Evidence
+### 4. Evidence
 
-**GitHub Repository:** https://github.com/AINEMBABAZI-KIIZA-DAVIS/BSE4104_Capstone  
-**ClickUp Project:** https://app.clickup.com/1200430000003901/v/li/1200430000006616  
-**Architecture Evidence:** `submission/WEEK7/Evaluation_Guardrails.jpg`
+GitHub: https://github.com/AINEMBABAZI-KIIZA-DAVIS/BSE4104_Capstone  
+ClickUp: https://app.clickup.com/1200430000003901/v/li/1200430000006616  
+Diagram: submission/WEEK7/Evaluation_Guardrails.jpg
 
-### 5. Individual Contributions
+### 5. Who did what
 
-| Member | Responsibility | Evidence |
+| Member | This week | Files |
 | :--- | :--- | :--- |
-| Nasiwa Hafswa | Evaluation criteria and 32-scenario set | `evaluation/scenarios.py` |
-| Armand Shematsi | Guardrails and observability | `src/guardrails.py`, `src/observability.py` |
-| Ainembabazi Kiiza Davis | Failure catalogue and prompt remediations | `docs/evaluation/failure-catalogue.md` |
-| Alvin Mayega Kenneth | Evaluation run and re-tests | `results/week7_evaluation.md`, `tests/test_guardrails.py` |
-| All members | Documentation / GitHub / ClickUp | Week 7 submission pack |
+| Nasiwa Hafswa | Scenario list | evaluation/scenarios.py |
+| Armand Shematsi | Guardrails and traces | src/guardrails.py, src/observability.py |
+| Ainembabazi Kiiza Davis | Failure catalogue and prompt edits | docs/evaluation/failure-catalogue.md |
+| Alvin Mayega Kenneth | The 32-run and guardrail tests | results/week7_evaluation.md, tests/test_guardrails.py |
 
-### 6. Plan for Week 8
+### 6. Next week
 
-During Week 8, the team will harden the README and run instructions, write the 8–12 page final engineering report, document remaining limitations, and prepare the demonstration deck.
+README, the 8–12 page report, known limitations, and the demo slides.
 
-### 7. Week 7 Status
+### 7. Status
 
-**Overall status:** On track
-
-The bounded workflow is evaluated, inspectable and fail-closed on unauthorized or adversarial input. Residual RAG flagging risk is documented rather than hidden.
+On track. Unauthorized and adversarial cases fail closed. We are not claiming the 32 tests measure how good the Gemini comparisons are.

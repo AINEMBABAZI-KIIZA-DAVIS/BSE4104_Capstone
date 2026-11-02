@@ -3,7 +3,7 @@
 **Implementation:** `src/mcp_interface.py`  
 **Mode:** In-process capability adapter (not a networked MCP server)
 
-The assignment allows either an external integration or an MCP-style interface. ProcurePrep documents the four Week 4 tools as callable capabilities with inputs, outputs, permissions and a security boundary so another agent runtime could host them later.
+The brief said we could either plug into an external system or describe the tools in an MCP-style catalogue. Our data is local CSVs, so we wrapped the same four tools in `src/mcp_interface.py`. It is not a server on the network.
 
 ---
 

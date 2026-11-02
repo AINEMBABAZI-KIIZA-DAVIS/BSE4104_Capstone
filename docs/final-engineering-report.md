@@ -9,29 +9,21 @@
 
 ## 1. Executive Summary
 
-ProcurePrep UG helps a Ugandan SME procurement officer prepare an internal purchase when stock falls below a reorder threshold. The system reads synthetic inventory and supplier quotations, explains tradeoffs, drafts a requisition and routes it only after a human confirms. It does not buy, pay or award a supplier.
+ProcurePrep UG is our BSE4104 capstone. It is meant for a small shop in Uganda that needs to prepare a purchase, not run a government tender. When stock in the CSV is below the reorder line, the program can pull quotes, write a comparison in Gemini, save a DRAFT requisition, and only then ask someone in the terminal if they want to route it. It never pays anyone and it never writes a purchase order.
 
-AI is used for quotation comparison and optional function calling. Deterministic software owns reorder arithmetic, quote validation, tool permissions and stop conditions. Week 7 evaluated 32 scenarios (normal, edge, incorrect, adversarial, tool-failure, unauthorized); all 32 passed. The principal limitation is residual RAG over-flagging and a small policy corpus. Those risks are documented; they do not allow autonomous spend.
+Python does the stock check, quote expiry, tool names, and stop reasons. Gemini writes the comparison text and, in the week 4 demo, can pick which of the four tools to call. We ran 32 week 7 cases without calling Gemini; all 32 passed. That suite does not score how well Gemini writes. The remaining weak spots are a small RAG corpus and two prompt issues (F-01, F-02) that we re-tested once on 18 October. Those are in the limitations note.
 
 ---
 
 ## 2. Problem Context and Requirements
 
-SME storekeepers in Uganda often compare paper quotes by eye. Errors include reordering too late, missing expired quotes and locking cash in minimum-order quantities. The charter use case is:
+SME storekeepers here often compare quotes on paper. People reorder late, miss an expiry date, or lock cash in a large MOQ. Our charter is one path: look at stock, decide if a reorder is needed, compare quotes, draft a requisition, then let the store manager approve outside this program.
 
-inventory tracking → reorder evaluation → quotation tradeoff analysis → requisition drafting → human store-manager approval.
+We treated these as non-negotiable. Reorder only when current_stock is below reorder_threshold. Do not call Gemini if stock is enough or if there are no quotes. Comparison text must not name a winner. A draft is not a PO. Routing waits for y in the terminal.
 
-Acceptance criteria used throughout the build:
+The Week 1 AI Boundary Matrix is still the rule: calculations, authorisation, and workflow state stay in software. Gemini may interpret, compare, explain, and draft wording.
 
-- Reorder if and only if `current_stock < reorder_threshold`.
-- No LLM call when stock is sufficient or when zero quotes exist.
-- Comparison reports must not name a winning supplier.
-- Drafts never become purchase orders.
-- Routing requires explicit confirmation.
-
-The AI Boundary Matrix (Week 1) keeps calculations, authorization and workflow state in software. AI may interpret, compare, explain and draft.
-
-Success measures: 10-case Week 2 prompt table; 15-question Week 3 RAG set; four-tool Week 4 contracts; three Week 5 traces; Week 6 memory demo; 32-scenario Week 7 suite.
+How we checked ourselves: ten week 2 prompt cases, fifteen week 3 RAG questions, four week 4 tools, three week 5 traces, a week 6 second-run memory demo, and thirty-two week 7 scenarios.
 
 ---
 
@@ -47,23 +39,21 @@ External-service boundary: Google Gemini API for generation and embeddings only.
 
 ![ProcurePrep UG — Final System Architecture](architecture/final-architecture.jpg)
 
-The diagram shows two zones. On the left, the vertical stack is the processing pipeline: the SME officer's goal enters the **bounded agent** (managing the Sense → Plan → Act → Observe → Stop loop and calling Gemini for quotation comparison text), passes through the **guardrails / traces / memory** layer (input validation, tool allow-list, JSONL observability and 90-day JSON memory), reads from **CSV data and the Chroma corpus** (inventory and quotations CSVs plus the 12-document knowledge base), and terminates at the **human approval boundary** (the CLI confirmation gate on `route_requisition_for_approval`). On the right, three responsibility boxes clarify the AI boundary: **Deterministic** work (reorder math, quote validation, allow-list enforcement) is owned entirely by Python; **Probabilistic** work (comparison narrative, risk-flag text, draft wording) is delegated to Gemini; and **Out of scope** items (payment, supplier award, live purchase orders) are excluded by charter and enforced in code — the system cannot produce a PO regardless of what the model outputs.
+Left side is the run: the officer’s item goes into the bounded agent (sense, plan, act, observe, stop). Guardrails, traces, and a small memory file sit around that loop. Stock and quotes come from the CSVs; the twelve knowledge files sit in Chroma. Routing only happens if someone types y. Right side is the split we actually coded: Python owns the numbers and the allow-list; Gemini owns the comparison wording; payment, award, and a live PO are out of scope even if the model asks for them.
 
 ---
 
 ## 4. Foundation Model and Prompt Engineering
 
-**Selected model:** `gemini-3.5-flash-lite` via `google-genai`. Rationale: low cost and latency (median 1.1s in Week 2), adequate numerical comparison, and acceptable negative-constraint following for a student-scale SME workload. Privacy: commercial quotes in this capstone are synthetic; a production deployment should use an enterprise API tier with data retention agreements.
+We used `gemini-3.5-flash-lite` (`google-genai`). In week 2 the median call was about 1.1 seconds, which was enough for student work. The quotes in this project are made-up, so we did not treat the API as a production privacy setup.
 
-Prompt engineering progressed across two major iterations based on a 10-test-case evaluation matrix (`results/week2_evaluation.md`):
+Two prompt files. v1.0 asked for a markdown table and said not to pick a supplier. It passed the basic checks, but risks sat in the paragraphs and were easy to miss. v1.1 forced risk flags. The week 2 table is in `results/week2_evaluation.md`.
 
-- **Prompt v1.0:** Established the standardized markdown comparison table, neutral analytical tone, and the negative constraint strictly prohibiting the agent from selecting a winner or issuing a purchase recommendation. While v1.0 passed basic evaluation, analysis revealed that operational risks were easily lost in narrative body text.
-- **Prompt v1.1:** Introduced mandatory risk flags and quantitative tradeoff modeling. The difference was demonstrated across two key cases:
-  - *TC-06 (Identical Prices & Non-Price Tradeoffs):* For Packaging Tape (`ITEM-006`, deficit 22), both vendors quoted UGX 8,500. Prompt v1.0 noted the logistical difference in prose. Prompt v1.1 systematically surfaced the landed-cost risk and operational lead times—contrasting Crown Office Tech (immediate self-collection with transport overhead) against Multiplex Supplies (4-day delivery included in price).
-  - *TC-10 (Minimum Order Quantity & Capital Impact):* For Sugar 50kg (`ITEM-010`, deficit 16 bags), Lugazi offered a discount price of UGX 185,000 (vs. Kakira's UGX 210,000) but strictly required a 50-bag MOQ. Prompt v1.0 merely mentioned the MOQ condition in observations. Prompt v1.1 attempted an explicit working-capital calculation: buying the exact 16-bag deficit from Kakira costs UGX 3,360,000, whereas buying the 50-bag MOQ from Lugazi costs UGX 9,250,000—an incremental cash outlay of **UGX 5,890,000** ($9,250,000 - 3,360,000$). At the Lugazi unit price, the 34 surplus bags represent **UGX 6,290,000** ($34 \times 185,000$) in excess inventory. The model's Week 2 output labelled the UGX 6,290,000 figure as "net excess working capital," which was a mislabel of inventory value for incremental cash outlay; this error illustrates concretely why financial arithmetic should always be computed deterministically in Python rather than generated by an LLM.
-  - Across other cases, v1.1 also surfaced `[MISSING TERMS]` on TC-04, highlighted `[EXPIRED - INACTIONABLE]` status on TC-05 (Q-109 expired by 32 days), quantified supply shortfalls and split orders on TC-08 (45 available vs. 50 deficit; UGX 712,500 total outlay), and flagged extreme pricing outliers on TC-09 (>5x premium).
+TC-06 (ITEM-006, packaging tape, deficit 22) had two quotes at UGX 8,500. v1.0 mentioned collection vs delivery in prose. v1.1 put Crown (self-collection, you pay transport) next to Multiplex (four-day delivery in the price).
 
-The model is strictly excluded from deciding whether to reorder; reorder gating is evaluated deterministically in Python. Temperature is set to 0.1 on all quotation comparison calls.
+TC-10 (ITEM-010, sugar 50kg, deficit 16 bags) is the one we keep talking about. Lugazi was UGX 185,000 with a 50-bag MOQ; Kakira was UGX 210,000 for the 16 bags. v1.0 mentioned MOQ. v1.1 tried the cash numbers: 16 × 210,000 = 3,360,000 versus 50 × 185,000 = 9,250,000, so an extra UGX 5,890,000 on the table. The extra 34 bags at Lugazi’s price are UGX 6,290,000 of stock. The model called that “net excess working capital,” which mixed inventory value with cash outlay. That is why we still want money maths in Python, not in the model.
+
+v1.1 also flagged missing terms on TC-04, expiry on TC-05 (Q-109, 32 days past), a short supply on TC-08, and a price outlier on TC-09. Reorder itself is never the model’s job. Comparison calls use temperature 0.1.
 
 ---
 
@@ -73,18 +63,13 @@ Twelve team-created documents in `knowledge/` cover reorder policy, quotation ev
 
 Chunking is 400 words with 50-word overlap (`src/ingest.py`). Each current document fits within a single chunk. Retrieval embeds queries with `models/gemini-embedding-001` (task type `retrieval_query`) and documents with `retrieval_document`, storing vectors in ChromaDB collection `procureprep_corpus`. Similarity metrics in code calculate L2 distance converted to normalized similarity via $1 / (1 + d)$; documentation was aligned to this formula after an initial draft cited cosine.
 
-**Grounding Contract & 15-Question Evaluation (`results/week3_rag_evaluation.md`, `results/live_rag_retest.md`):**  
-System responses require a `RELEVANT KNOWLEDGE` block and an explicit `SOURCES USED` section. During the original Week 3 evaluation, only 10 of the 15 policy questions were executed live against Gemini:
-- **Live Week 3 Execution (10 questions):**
-  - *Answerable (4 executed live):* RQ-01, RQ-03, RQ-04, and RQ-05 were run live and passed, citing template fields, quotation thresholds (minimum 3 quotes for UGX 500,000–5,000,000), evaluation weights (40/30/15/15), and 30-day payment terms. RQ-02 was only retrieval-verified in Week 3 ("would list" required fields) and was not sent to Gemini for generation.
-  - *Partially Answerable (5 executed live):* All 5 were run live. The pipeline passed 4 cases by maintaining strict boundaries: RQ-06 refused to answer inventory thresholds (correctly citing that stock data lives in `inventory.csv` rather than policy text), RQ-07 noted the absence of a late-delivery penalty schedule, RQ-08 identified eco-guidelines without inventing certifications, and RQ-09 explained the >5M tendering rule. RQ-10 failed partially (Failure F-02): the retrieved document cited dispute resolution as a negotiation topic, but because no specific mechanism was prescribed, the model gave an all-or-nothing refusal rather than a partial answer.
-  - *Deliberately Unanswerable (1 executed live):* Only RQ-11 was run live, correctly refusing to answer unit prices from policy documents despite noisy top-4 retrieval (Failure F-03). RQ-12 through RQ-15 were not executed in Week 3 and were marked "assumed" in the original evaluation report.
-- **Recount of Week 3 Table:** Counting directly from the Week 3 evaluation table yields 14 passes and 1 partial fail (or 9 passes and 1 partial fail among the 10 questions executed live in Week 3). The summary statistics line citing "13 / 15" does not match the direct table recount.
-- **Week 8 live RAG re-test (2026-10-18):** Not a ninth project week. Recorded in `results/live_rag_retest.md` during hardening, using `gemini-3.5-flash-lite` via `src/rag_reorder_checker.py`:
-  - *RQ-02 (Answerable):* **PASS.** Grounded response listing required quotation fields (supplier, UGX unit price, quantity, delivery location/lead time, validity, MOQ notes) citing `quotation_evaluation_criteria_sme.txt` and `sme_reorder_policy.txt`.
-  - *RQ-10 (Evaluating F-02):* **Mitigated. The failure did not recur in one live re-test (n=1, temperature 0.1); residual variability remains.** Rather than an uninformative refusal, the model generated a grounded partial answer confirming dispute resolution is a negotiation focus area while noting specific mechanisms are governed by law, citing `contract_negotiation_guidelines.txt` and `supplier_code_of_conduct_addendum.txt` (the latter citation being only loosely relevant).
-  - *RQ-12 to RQ-15 (Unanswerable):* **PASS (4/4).** All four produced clean, zero-hallucination refusals: RQ-12 stated no cleaning contract award history exists; RQ-13 confirmed no numerical legal liability cap is specified; RQ-14 stated no preferred toner suppliers are listed; and RQ-15 refused the external VAT query with `SOURCES USED: None – question outside corpus scope`.
-  - *ITEM-001 Comparison (Evaluating F-01):* **Mitigated. The failure did not recur in one live re-test (n=1, temperature 0.1); residual variability remains.** In live comparison on `ITEM-001` (deficit 28 reams), Q-103 notes state "Payment terms: Cash on delivery" without triggering any false `[MISSING TERMS]` flag; Critical Alerts confirms no risk flags were triggered.
+Answers are supposed to show a `RELEVANT KNOWLEDGE` block and `SOURCES USED`. In week 3 we only sent ten of the fifteen policy questions to Gemini. Full notes: `results/week3_rag_evaluation.md` and `results/live_rag_retest.md`.
+
+RQ-01, RQ-03, RQ-04, and RQ-05 ran live and passed (template fields, three quotes between UGX 500,000 and 5,000,000, 40/30/15/15 weights, 30-day payment). RQ-02 was only checked at retrieval that week; we did not generate an answer. All five “partial” questions ran live. RQ-06 to RQ-09 stayed inside the corpus (stock lives in the CSV, no late-delivery penalty table, eco notes without fake certificates, the >5M rule). RQ-10 was F-02: the file mentions dispute resolution as a negotiation topic, and the model said it could not determine anything. RQ-11 (unanswerable price) refused correctly even with noisy top-4 retrieval (F-03). RQ-12 to RQ-15 were marked assumed in the original write-up.
+
+If you count the week 3 table you get 14 pass and 1 partial fail, or 9 pass and 1 partial among the ten live questions. The old “13 / 15” summary line does not match that table.
+
+On 18 October we re-ran a few cases during week 8 write-up (not a ninth week). RQ-02 passed. RQ-10 gave a partial answer and cited `contract_negotiation_guidelines.txt` plus `supplier_code_of_conduct_addendum.txt` (the second file is a stretch). RQ-12 to RQ-15 all refused. ITEM-001 / Q-103 did not raise a false `[MISSING TERMS]` flag that time. That is n=1 at temperature 0.1. The model can still vary.
 
 ---
 
@@ -129,7 +114,7 @@ Interoperability is an MCP-style catalogue (`src/mcp_interface.py`): list/call, 
 | unauthorized-action | 4 | 4 |
 | **Total** | **32** | **32** |
 
-All 32 evaluation scenarios passed (100% success rate across normal operations, boundary edges, incorrect information, prompt injections, tool failures, and role permissions). The full scenario-by-scenario table with execution latencies is documented in Appendix C.
+All 32 passed on the run we recorded. Appendix C has the row-by-row table and latencies. Again, that is the Python layer, not a Gemini writing score.
 
 ### 8.3 Trace Excerpt — ITEM-005 Expired-Quote Recovery
 
@@ -189,31 +174,29 @@ Maintainability: legacy tender code is isolated; week packs live under `submissi
 
 ---
 
-## 9b. Deliberate Design Choices
+## 9b. Why we built it this way
 
-Five architectural decisions were made deliberately, each with an engineering rationale drawn from the weekly design notes.
+We put the reorder check and the “no quotes” stop in Python so we can show a marker the decision without waiting on Gemini (`docs/architecture/rag-architecture.md`).
 
-**1. Deterministic before probabilistic.** The reorder trigger (`current_stock < reorder_threshold`) and the zero-quote early stop are computed in Python. Gemini is not called when stock is sufficient or when no quotes exist. This ensures the most consequential binary decision — whether to reorder at all — is auditable without a model. Source: `docs/architecture/rag-architecture.md` §Design Decisions.
+Week 5 picks the next tool in `plan_next_action()`, not by asking the model for a plan. That is why the 32 cases run with no API key (`docs/architecture/agent-architecture.md`).
 
-**2. Direct orchestration, not model-chosen steps.** The Week 5 bounded agent uses `plan_next_action()` in Python to select the next tool. Gemini is not asked to plan the sequence. This keeps iteration limits, stop conditions and recovery logic inspectable in code and runnable without a live API key (the entire 32-scenario evaluation suite is Gemini-free). Source: `docs/architecture/agent-architecture.md`.
+Memory only fills in the last quantity and the usual name. A second ITEM-004 run still checks stock and quotes. A test checks that it stays DRAFT unless someone asks to route (`docs/architecture/memory-design.md`).
 
-**3. Memory as prefill, not as authority.** `agent_memory.py` stores the last quantity and requester name as hints only. On a second preparation of ITEM-004 the agent still re-runs `get_reorder_status`, re-fetches quotations, and re-validates the chosen quote in Python. A dedicated unit test asserts the run ends as `DRAFT`, not `PENDING_APPROVAL`, even when memory is populated. Source: `docs/architecture/memory-design.md` §Critical-decision boundary.
+`tender_checklist.txt` was public-sector drift. It lives in `legacy/` now. The twelve files we keep are SME reorder and quote notes.
 
-**4. Corpus aligned to charter scope.** The original knowledge base included a tender submission checklist (`tender_checklist.txt`) which belongs to public-sector procurement, not SME reorder preparation. It was removed and isolated in `legacy/`. The 12 remaining documents cover reorder policy, quotation evaluation criteria, requisition templates and supplier terms — all within the agreed charter. Source: `docs/architecture/rag-architecture.md` §Design Decisions.
-
-**5. Spend is unconditionally outside the system.** No supplier is selected in memory, no payment or bank details are stored, and no `PENDING_APPROVAL` status is written automatically. The system boundary is DRAFT (local JSON) or PENDING_APPROVAL (simulated routing); the store manager authorises spend through a separate channel. This is enforced by the tool contracts, not just by prompt wording — `route_requisition_for_approval` requires an explicit human confirmation signal and still does not create a purchase order. Source: `docs/architecture/memory-design.md` §What is not stored.
+Nothing in memory is a winning supplier or a bank detail. PENDING_APPROVAL is never written on its own. Even after y on route, there is still no PO.
 
 ---
 
 ## 10. Results, Limitations and Professional Reflection
 
-**What works.** Deterministic reorder gating; versioned comparison prompts; RAG with citations; four tools with a human gate; a bounded prepare-requisition loop that recovers from an expired cheapest quote; memory that prefills without awarding; a 32/32 evaluation suite; live verified RAG grounding and refusal behaviors.
+What we can show: stock gating in Python, two prompt versions, RAG with sources, four tools, ITEM-005 recovering from Q-109, memory that only prefills, 32/32 on the Python suite, and the 18 October RAG re-run.
 
-**What does not.** Live RAG still depends on a small 12-chunk corpus. Prompt edits for F-01/F-02: the failure did not recur in one live re-test (n=1, temperature 0.1); residual variability remains. Approval is CLI-only. Memory is a single local JSON file.
+What is still thin: twelve short documents, F-01/F-02 only re-tested once, y/n in a terminal, one json memory file.
 
-**Human responsibility.** The store manager still selects the supplier and authorizes spend. The team owns the code, tests and decisions; the agent never authorizes spend.
+The store manager still picks the supplier and spends the money. We own the code. The agent does not.
 
-**Future work.** Retrieval score threshold; approval UI; encrypted multi-user memory; optional MCP server; 30-scenario live Gemini comparison set.
+If this went further we would add a retrieval cutoff, a real approval page, better memory, maybe a networked MCP server, and a live Gemini scenario pack. That is not this eight-week delivery.
 
 ---
 

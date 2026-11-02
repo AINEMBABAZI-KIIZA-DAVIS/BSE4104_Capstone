@@ -1,67 +1,111 @@
 # ProcurePrep UG
 
-BSE4104 AI-Native & Agentic Engineering Capstone. An SME procurement-preparation agent for Uganda:
+ProcurePrep UG is a deterministic procurement-preparation tool for a small retail or office operation in Uganda. It checks stock, compares supplier quotations, drafts a requisition, and blocks any automatic spend or payment action until a human approves the route.
 
-**inventory check → reorder decision → quotation comparison → requisition draft → human approval**
+The project now runs as a real local application:
+- a Python backend exposes live procurement logic over HTTP
+- a browser dashboard reads live inventory and evaluation state
+- the Week 7 scenario suite runs against the same Python logic used by the app
 
-AI compares and drafts. Deterministic Python decides reorder math, validates quotes and blocks unauthorized actions. The system does not purchase, pay or award a supplier.
+## What the system does
 
-## Setup
+- Reads inventory and quotation data from the local CSV files
+- Evaluates reorder need using deterministic thresholds
+- Retrieves valid supplier quotes
+- Creates DRAFT requisitions without issuing a purchase order
+- Enforces safety guardrails for item IDs, roles, quantity, and tool access
+- Requires human confirmation before a requisition is routed for approval
+
+## Quick start
 
 ```bash
-python -m venv venv
-venv\Scripts\activate          # Windows
-# source venv/bin/activate     # macOS / Linux
+python -m venv .venv
+source .venv/bin/activate  # macOS / Linux
+python -m pip install --upgrade pip
 pip install -r requirements.txt
-copy .env.example .env         # then set GEMINI_API_KEY
+cp .env.example .env
+./start.sh
 ```
 
-`GEMINI_API_KEY` is required for Week 2 reports, Week 3 RAG and Week 4 live tool calling. Weeks 5–7 (bounded agent, memory, 32-scenario eval) run without it.
+Then open:
+- backend: http://127.0.0.1:8000
+- dashboard: http://127.0.0.1:8001/demo_dashboard.html
 
-Build the RAG index after clone (needs the API key):
+## Environment configuration
+
+The app reads values from `.env` if present. The defaults are defined in `.env.example`:
+
+```env
+API_HOST=0.0.0.0
+API_PORT=8000
+DASHBOARD_PORT=8001
+DEBUG=0
+GEMINI_API_KEY=
+ALLOWED_ORIGINS=http://127.0.0.1:8001,http://localhost:8001
+```
+
+## Run manually
+
+If you do not want to use the start script:
 
 ```bash
-python src/embed_store.py
+# backend
+python -m uvicorn app:app --host 0.0.0.0 --port 8000
+
+# dashboard
+python -m http.server 8001 --directory .
 ```
 
-## Run
+Then open the dashboard at `http://127.0.0.1:8001/demo_dashboard.html`.
 
-| Week | Command |
-| :--- | :--- |
-| 2 – reorder + comparison | `python main.py --prompt prompts/prompt_v1.1.txt --output results/reorder_reports_v1.1.md` |
-| 3 – RAG comparison | `python src/rag_reorder_checker.py --items ITEM-001` |
-| 3 – policy question | `python src/rag_reorder_checker.py --question "How many quotations are required between UGX 500,000 and 5,000,000?"` |
-| 4 – Gemini tools | `python src/agent_orchestrator.py --demo` |
-| 5 – bounded agent | `python src/bounded_agent.py --item ITEM-004` |
-| 5 – traces | `python src/bounded_agent.py --traces results/week5_execution_traces.md` |
-| 7 – evaluation | `python scripts/run_week7_evaluation.py` |
-| Tests | `python -m unittest discover -s tests -q` |
+## Validation and evaluation
 
-The 32-scenario suite tests the deterministic layer (reorder gate, validation, guardrails, roles, confirmation, stop conditions). It does not evaluate LLM comparison quality.
+Run the automated checks:
 
-**Models in code:** comparison and function calling default to `gemini-3.5-flash-lite`; embeddings use `models/gemini-embedding-001`.
+```bash
+python -m unittest tests.test_api_smoke tests.test_live_evaluation -v
+```
 
-## Safety boundary
+Run the live 32-scenario evaluation suite:
 
-- Reorder trigger: `current_stock < reorder_threshold` in Python only.
-- Drafts are local JSON. Routing needs an explicit human yes.
-- Tool allow-list: reorder status, quotations, draft, route.
-- Prompt-injection and unauthorized roles fail closed (`src/guardrails.py`).
+```bash
+python scripts/run_week7_evaluation.py
+```
+
+The project also exposes a live API route for the evaluation data:
+
+```bash
+curl http://127.0.0.1:8000/api/evaluation
+```
+
+This returns the full live pass/fail result from the deterministic Python layer. The project currently reports `32 / 32` passing for the Week 7 suite.
 
 ## Repository layout
 
-```
-data/            inventory and quotation CSVs
-knowledge/       12-document SME corpus
-prompts/         versioned system prompts
-src/             tools, RAG, bounded agent, memory, guardrails
-tests/           unit tests
-evaluation/      32 Week 7 scenarios
-docs/            architecture, weekly reports, final report
-submission/      WEEK1 … WEEK8 academic packs
-legacy/          archived tender-checker drift
+```text
+app.py             FastAPI backend entry point
+config.py          environment/settings loader
+start.sh           starts backend + dashboard in one step
+demo_dashboard.html browser-driven demo UI
+src/               procurement logic, guardrails, agent, tool registry
+src/tools.py       deterministic business logic
+src/guardrails.py input validation and access controls
+data/             inventory, quotations, requisition, memory state
+knowledge/        policy and reference data for procurement decisions
+results/          evaluation outputs and execution traces
+tests/            backend and API validation tests
+docs/             architecture and project evidence logs
+legacy/           older experimental files kept for reference
 ```
 
-## Secrets
+## Safety model
 
-Never commit `.env`. Use `.env.example`. `chroma_db/`, `data/requisitions.json` and `data/agent_memory.json` are gitignored runtime files.
+- No automatic spend or PO issuance occurs
+- Human confirmation is required before routing moves to approval
+- Unknown tools fail closed
+- Invalid item IDs, bad quantities, or unauthorized roles are rejected
+- Injection patterns such as override, award, payment, or SQL-style payloads are blocked
+
+## Notes
+
+This project is intentionally deterministic for the procurement decision path. The browser UI and API are connected to the same Python logic so the demo reflects real backend behavior instead of static mock data.

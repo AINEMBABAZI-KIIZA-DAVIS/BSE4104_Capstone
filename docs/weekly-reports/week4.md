@@ -2,54 +2,50 @@
 
 ## Week 4 Progress Report
 
-**Project:** ProcurePrep UG — AI-Native SME Procurement-Preparation Agent  
-**Week:** Week 4  
-**Week Ending:** 25 September 2026
+**Project:** ProcurePrep UG  
+**Week ending:** 25 September 2026
 
-### 1. Work Completed
+### 1. Work completed
 
-During Week 4, the team moved beyond answer generation by exposing four explicit tools to Gemini through a manual function-calling loop in `src/agent_orchestrator.py`. Automatic function calling is disabled so the application can intercept high-impact actions.
+We spent this week getting Gemini to call tools instead of only writing comparison reports. The loop lives in src/agent_orchestrator.py. Automatic function calling is switched off, which is annoying for the happy path but it means we can stop routing before it runs.
 
-`get_supplier_quotations` reads current rows from `data/quotations.csv`. `get_reorder_status` returns the deterministic reorder decision. `create_requisition_draft` writes a DRAFT record to `data/requisitions.json` without approving spend. `route_requisition_for_approval` changes status to PENDING_APPROVAL only after an explicit CLI yes/no confirmation.
+There are four tools. get_reorder_status still does the stock check in Python. get_supplier_quotations reads the CSV. create_requisition_draft writes a local DRAFT json file (not a purchase order). route_requisition_for_approval only flips the status after someone types y or n in the terminal.
 
-The team tested missing parameters, unauthorized or unknown tools, expired and malformed quotations, unavailable Gemini responses and human decline of routing. A live demonstration on ITEM-004 shows the model selecting tools and drafting a requisition on the cheapest valid quote.
+We ran tests for missing arguments, unknown tool names, expired quotes, and the case where the human says no. The ITEM-004 demo is the one we will show: the model picks tools and drafts on the cheapest quote that is still valid.
 
-### 2. Key Engineering Decisions
+### 2. Decisions
 
-Tool contracts are enforced in Python. The model may choose when to call a tool, but it cannot bypass quantity, quotation-ownership, expiry or status checks.
+Contracts stay in Python. Gemini can decide *when* to call something, but it cannot skip expiry or quantity checks.
 
-Only routing is gated. Draft creation is treated as a low-risk simulated side effect, matching the assignment requirement.
+Only routing is gated. Drafting felt like the “low-risk side effect” the brief asked for.
 
-The Week 2/3 comparison prompts still forbid picking a winner. The agent may draft against a quote the user asked for; a human must still approve routing.
+The comparison prompts from weeks 2 and 3 still say not to pick a winner. If a draft is tied to a quote, a person still has to approve routing.
 
-### 3. Challenges
+### 3. What went wrong
 
-The main challenge was keeping Gemini from executing routing without a human. Disabling automatic function calling and staging `route_requisition_for_approval` solves this in the CLI. A headless deployment would need an equivalent approval UI.
+Gemini kept trying to route without asking. Staging the route tool and turning off auto function calling fixed it for the CLI. If we ever put this on a server we would need a real approval screen. We do not have that yet.
 
-A second challenge was distinguishing LLM risk flags from tool validation. Week 3 false `[MISSING TERMS]` alerts do not affect drafts because expiry and quotation membership are checked in code.
+Also, Week 3 still had those false [MISSING TERMS] flags. They do not matter for drafts because expiry and “does this quote belong to this item” are checked in tools.py.
 
-### 4. Repository and Task Evidence
+### 4. Evidence
 
-**GitHub Repository:** https://github.com/AINEMBABAZI-KIIZA-DAVIS/BSE4104_Capstone  
-**ClickUp Project:** https://app.clickup.com/1200430000003901/v/li/1200430000006616  
-**Architecture Evidence:** `submission/WEEK4/Agent_Architecture.jpg`
+GitHub: https://github.com/AINEMBABAZI-KIIZA-DAVIS/BSE4104_Capstone  
+ClickUp: https://app.clickup.com/1200430000003901/v/li/1200430000006616  
+Diagram: submission/WEEK4/Agent_Architecture.jpg
 
-### 5. Individual Contributions
+### 5. Who did what
 
-| Member | Responsibility | Evidence |
+| Member | This week | Files |
 | :--- | :--- | :--- |
-| Nasiwa Hafswa | Tool catalogue, schemas, authorization notes | `docs/tool-catalogue.md` |
-| Armand Shematsi | Orchestrator, human approval gate, architecture | `src/agent_orchestrator.py`, `docs/architecture/agent-architecture.md` |
-| Ainembabazi Kiiza Davis | Tool implementations and requisition store | `src/tools.py`, `src/requisition_store.py` |
-| Alvin Mayega Kenneth | Failure, authorization and API-unavailable tests | `tests/test_tools.py`, `results/week4_tool_tests.md` |
-| All members | Documentation / GitHub / ClickUp | Week 4 submission pack |
+| Nasiwa Hafswa | Tool catalogue and schemas | docs/tool-catalogue.md |
+| Armand Shematsi | Orchestrator and the y/n gate | src/agent_orchestrator.py, docs/architecture/agent-architecture.md |
+| Ainembabazi Kiiza Davis | tools.py and the requisition json store | src/tools.py, src/requisition_store.py |
+| Alvin Mayega Kenneth | Tests (missing params, expired quotes, no API) | tests/test_tools.py, results/week4_tool_tests.md |
 
-### 6. Plan for Week 5
+### 6. Next week
 
-During Week 5, the team will implement one bounded multi-step agent workflow with approved tools, iteration limits, stop conditions and human hand-off, and capture at least three execution traces including one failure or recovery case.
+Week 5 is the bounded loop: limits, stop reasons, and at least three traces, one of them a failure we recover from.
 
-### 7. Week 4 Status
+### 7. Status
 
-**Overall status:** On track
-
-The system now uses explicit tools with contracts, permissions and a human gate on higher-impact routing. Week 5 will add bounded autonomy around these tools, not open-ended execution.
+On track. Tools exist and routing cannot run quietly. Next week we wrap a loop around them, not a free-roaming agent.

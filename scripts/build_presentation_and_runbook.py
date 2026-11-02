@@ -132,23 +132,23 @@ def build_pptx(path: Path) -> None:
     _bar(s, prs)
     _title_box(s, "1. Problem and target user")
     _bullets(s, [
-        "User: SME procurement officer or owner-manager in Uganda",
-        "Pain: stock checks and quote comparison are done by hand — late reorders, expired quotes, cash locked in MOQs",
-        "Task: prepare one purchase, not run a national e-procurement platform",
-        "Workflow: inventory → reorder check → quotation comparison → draft requisition → human approval",
-        "Why AI: tradeoff explanation and drafting; not threshold math or spend authorization",
+        "Small shop / storekeeper in Uganda, not PPDA e-procurement",
+        "Stock and quotes are still often done on paper",
+        "We prepare one reorder: check stock, compare quotes, save a DRAFT",
+        "Gemini writes the comparison. Python decides if stock is below the line.",
+        "A person still chooses the supplier and spends the money.",
     ])
 
     # 3 Boundary
     s = _blank(prs)
     _bar(s, prs)
-    _title_box(s, "2. Where AI stops — the boundary")
+    _title_box(s, "2. What Gemini is allowed to do")
     _bullets(s, [
-        "AI may: compare quotes, explain risks, draft a requisition, choose the next approved tool",
-        "Python must: decide reorder (current_stock < threshold), validate quotes, enforce the tool allow-list",
-        "Human must: confirm routing and make the buying decision",
-        "The agent must not: purchase, pay, award a supplier, or issue a purchase order",
-        "This is the Week 1 AI Boundary Matrix, kept through Week 8",
+        "Compare quotes and write the report. In week 4 it can pick among four tools.",
+        "Python still decides reorder, expiry, and unknown tool names.",
+        "Routing waits for y or n in the terminal.",
+        "No purchase, payment, award, or PO — that is in the charter and in the tools.",
+        "Same split we wrote in week 1.",
     ])
 
     # 4 Progression
@@ -156,25 +156,25 @@ def build_pptx(path: Path) -> None:
     _bar(s, prs)
     _title_box(s, "3. Eight-week architecture progression")
     _bullets(s, [
-        "Week 2 — Gemini + versioned prompts; 10-case comparison baseline",
-        "Week 3 — RAG over a 12-document SME corpus with source citations",
-        "Week 4 — Four tools; human gate on route_requisition_for_approval",
-        "Week 5 — Bounded Sense → Plan → Act → Observe → Stop loop",
-        "Week 6 — Explicit session state, justified memory, MCP-style interface",
-        "Week 7 — 32-scenario evaluation, traces, guardrails, failure catalogue",
-        "Week 8 — Hardened README, final report, this demonstration",
+        "Week 2: two prompts, ten comparison cases",
+        "Week 3: twelve files in Chroma, sources in the answer",
+        "Week 4: four tools; route only after y/n",
+        "Week 5: loop with limits; ITEM-005 recovers from an expired quote",
+        "Week 6: session state, a json memory file, in-process tool catalogue",
+        "Week 7: 32 tests, traces, things that actually broke",
+        "Week 8: report, README, this demo",
     ], size=17)
 
     # 5 Live success
     s = _blank(prs)
     _bar(s, prs)
-    _title_box(s, "4. Live success — prepare a draft (ITEM-004)")
+    _title_box(s, "4. Demo: ITEM-004 draft")
     _bullets(s, [
-        "Thermal POS Receipt Rolls: stock 5 / threshold 25 → deficit 20 cartons",
-        "Quotes: Q-107 UGX 45,000 (valid) and Q-108 UGX 48,000 (valid)",
-        "Agent drafts on cheapest valid quote Q-107 — status stays DRAFT",
-        "No routing unless the officer asks and confirms",
-        "State clearly in the viva: no purchase order was created",
+        "Thermal POS rolls. Stock 5, threshold 25, so we need 20 cartons.",
+        "Q-107 is 45,000, Q-108 is 48,000. Both still valid.",
+        "Draft lands on Q-107. Status is DRAFT.",
+        "It will not route unless we pass --route and type y.",
+        "Say in the viva: this is not a purchase order.",
     ])
     _code(s, "python src/bounded_agent.py --item ITEM-004")
 
@@ -183,37 +183,37 @@ def build_pptx(path: Path) -> None:
     _bar(s, prs)
     _title_box(s, "5. Evidence view — evaluation and traces")
     _bullets(s, [
-        "Week 7 suite: 32 scenarios, 32 passed — deterministic layer only (not LLM comparison quality)",
-        "LLM behaviour is the 10-case Week 2 table and the 15-question Week 3 RAG set",
-        "Categories: normal, edge, incorrect information, adversarial, tool-failure, unauthorized",
-        "Each ACT is logged with session_id, tool, latency_ms and outcome",
-        "Open results/week7_evaluation.md or results/traces/week7_eval.jsonl",
+        "32/32 on scripts/run_week7_evaluation.py. That script does not call Gemini.",
+        "Gemini writing is still the week 2 table and the week 3 questions.",
+        "Normal, edge, bad ids, injection text, tool errors, wrong roles.",
+        "Each act writes a JSONL line (tool, time, outcome).",
+        "Open results/week7_evaluation.md if they want the table.",
     ])
     _code(s, "python scripts/run_week7_evaluation.py")
 
     # 7 Failure
     s = _blank(prs)
     _bar(s, prs)
-    _title_box(s, "6. Real failure and recovery — ITEM-005")
+    _title_box(s, "6. When it fails: ITEM-005")
     _bullets(s, [
-        "Cheapest quote Q-109 (UGX 38,000) expired on 2026-08-15",
-        "create_requisition_draft returns QUOTATION_EXPIRED — validation is Python, not the model",
-        "Observer excludes Q-109; planner re-plans onto valid Q-110",
-        "This is the required Week 5 failure/recovery trace",
-        "Residual RAG limit: F-01 false [MISSING TERMS] was a prompt issue, not this path",
+        "Q-109 looks cheapest (38,000) but expired 15 Aug 2026.",
+        "The draft tool returns QUOTATION_EXPIRED. That check is in Python.",
+        "Then it drafts Q-110 and stops.",
+        "That is the week 5 recovery we need to show.",
+        "False [MISSING TERMS] (F-01) is a RAG/prompt issue, not this path.",
     ])
     _code(s, "python src/bounded_agent.py --item ITEM-005")
 
     # 8 Guardrails
     s = _blank(prs)
     _bar(s, prs)
-    _title_box(s, "7. Guardrails and lessons")
+    _title_box(s, "7. Things we block")
     _bullets(s, [
-        "Tool allow-list of four names — award_contract is UNKNOWN_TOOL",
-        "Roles: only procurement_officer / store_manager; vendors are rejected",
-        "Routing requires explicit human confirmation",
-        "Injection strings (ignore instructions, award, approve payment, DROP TABLE) are blocked",
-        "Lesson: keep spend decisions out of the model; evaluate fail-closed behaviour, not only the happy path",
+        "Only four tool names. award_contract is UNKNOWN_TOOL.",
+        "Vendor role is rejected. Store manager cannot route through the adapter.",
+        "Route without y stays DRAFT.",
+        "Ignore-instructions / award / approve payment / DROP TABLE get blocked.",
+        "We would rather stop than let the model talk its way into spend.",
     ])
 
     # 9 Limitations
@@ -221,11 +221,11 @@ def build_pptx(path: Path) -> None:
     _bar(s, prs)
     _title_box(s, "8. Known limitations")
     _bullets(s, [
-        "Small 12-chunk corpus — RAG top-4 can be noisy for price questions (use CSV tools)",
-        "F-01/F-02: The failure did not recur in one live re-test (n=1, temperature 0.1); residual variability remains",
-        "Human approval is CLI-only; memory is a local JSON file",
-        "MCP adapter is in-process, not a networked server",
-        "Gemini is required for Weeks 2–4; Weeks 5–7 run without an API key",
+        "Twelve short documents. Price questions should use the CSV, not RAG.",
+        "F-01/F-02: one re-test on 18 Oct looked fine. The model can still drift.",
+        "Approval is y/n in the terminal. Memory is one json file.",
+        "The MCP wrapper is not a server another app can connect to.",
+        "Need a Gemini key for weeks 2–4. Weeks 5–7 run without it.",
     ])
 
     # 10 How to run (pointer)
@@ -233,11 +233,11 @@ def build_pptx(path: Path) -> None:
     _bar(s, prs)
     _title_box(s, "9. How to run (see the run guide)")
     _bullets(s, [
-        "Create a venv, install requirements.txt, copy .env.example to .env",
-        "Set GEMINI_API_KEY only if you need Week 2/3/4 Gemini features",
-        "Demo without API key: bounded agent ITEM-004 then ITEM-005",
-        "Tests: python -m unittest discover -s tests -q",
-        "Full commands are in: How to Run ProcurePrep UG.docx",
+        "venv, pip install -r requirements.txt, copy .env.example",
+        "API key only if we show week 2/3/4 Gemini bits",
+        "Without a key: ITEM-004, then ITEM-005",
+        "python -m unittest discover -s tests -q",
+        "Commands are also in How to Run ProcurePrep UG.docx",
     ])
     _code(s, "python -m unittest discover -s tests -q")
 
@@ -257,7 +257,7 @@ def build_pptx(path: Path) -> None:
     tf.word_wrap = True
     p = tf.paragraphs[0]
     run = p.add_run()
-    run.text = "Build the smallest useful agentic system that you can test, explain and safely control."
+    run.text = "We can run ITEM-004, ITEM-005, or any of the 32 cases. Nothing here spends money."
     _set_run(run, 20, False, GOLD)
 
     path.parent.mkdir(parents=True, exist_ok=True)

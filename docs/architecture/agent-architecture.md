@@ -1,8 +1,8 @@
 # ProcurePrep Agent Architecture (Weeks 4–6)
 
-**Scope:** Tool calling (Week 4), bounded autonomy (Week 5), explicit state and justified memory (Week 6).
+Week 4 is the four tools. Week 5 is the loop in `src/bounded_agent.py`. Week 6 is session state plus a small memory file.
 
-**Model / planner:** Week 4 Gemini function calling remains available. The Week 5 bounded workflow uses **direct orchestration** in `src/bounded_agent.py` so next-action choice, limits and stop reasons are inspectable without a live model.
+Gemini can still pick tools in the week 4 demo. The week 5 planner is Python, so we can run traces without a key.
 
 ---
 

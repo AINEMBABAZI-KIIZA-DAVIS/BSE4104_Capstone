@@ -1,16 +1,10 @@
 # ProcurePrep UG – Week 6 Memory and State Demonstration
 
-**Purpose:** Show that justified memory prefills quantity and requester on a repeat preparation without silently routing or awarding.
+We ran ITEM-004 twice. The second time it filled in the last quantity and name. It still ended as DRAFT. It did not route on its own.
 
 ## Run 1 — first preparation (no prior history)
 
-- Stop: `GOAL_COMPLETE`  
-- Outcome: `SUCCESS`  
-- Quantity: 20  
-- Requester: Jane Okello  
-- Quotation: Q-107  
-- Requisition: REQ-20260923-0001 status=DRAFT  
-- Memory hints used: ['none']
+Stop GOAL_COMPLETE, outcome SUCCESS, quantity 20, Jane Okello, quote Q-107, REQ-20260923-0001 still DRAFT. Memory hints: none.
 
 ```
 session=SES-8c59ad4b6f
@@ -79,14 +73,9 @@ item=ITEM-004 requested_by=Jane Okello quantity=20 route=False
 [MEMORY] recorded successful preparation
 ```
 
-## Run 2 — repeat ITEM-004 with quantity and name omitted
+## Run 2 — same item, we left quantity and name blank
 
-- Stop: `GOAL_COMPLETE`  
-- Outcome: `SUCCESS`  
-- Quantity prefilled: 20  
-- Requester prefilled: Jane Okello  
-- Memory hints used: ['default_requested_by', 'last_quantity', 'last_quotation_id_hint_only']  
-- Status remains: DRAFT (not PENDING_APPROVAL)
+Stop GOAL_COMPLETE. It filled quantity 20 and Jane Okello from memory (hints: default_requested_by, last_quantity, last_quotation_id as hint only). Status stayed DRAFT.
 
 ```
 session=SES-4285811583

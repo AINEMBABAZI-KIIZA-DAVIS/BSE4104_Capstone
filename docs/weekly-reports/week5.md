@@ -2,54 +2,50 @@
 
 ## Week 5 Progress Report
 
-**Project:** ProcurePrep UG — AI-Native SME Procurement-Preparation Agent  
-**Week:** Week 5  
-**Week Ending:** 2 October 2026
+**Project:** ProcurePrep UG  
+**Week ending:** 2 October 2026
 
-### 1. Work Completed
+### 1. Work completed
 
-During Week 5, the team implemented one goal-directed workflow: prepare a DRAFT purchase requisition for a named inventory item. The loop in `src/bounded_agent.py` follows Sense → Plan → Act → Observe → Stop / Re-plan. The planner chooses only among the four approved Week 4 tools.
+The assignment wanted one real multi-step job. Ours is: prepare a DRAFT requisition for one stock item. src/bounded_agent.py runs sense, plan, act, observe, then either stop or try again. It only uses the four tools from last week.
 
-Limits are maximum 8 iterations and 2 recoveries. Stop reasons include sufficient stock, missing quotes, expired-only quotes, unknown item, human decline and the iteration cap. Routing still requires explicit confirmation.
+We capped the loop at 8 steps and 2 recoveries. It stops if stock is fine, if there are no quotes, if every quote is expired, if the item id is wrong, if the person says no to routing, or if it hits the cap. Routing still asks first.
 
-Three execution traces were captured: a successful ITEM-004 draft, a safe stop on ITEM-002 (stock sufficient), and a recovery on ITEM-005 where expired Q-109 is rejected and the planner re-plans onto Q-110.
+Three traces are in results/week5_execution_traces.md. ITEM-004 goes through to a draft. ITEM-002 stops after the stock check (45 is above 20). ITEM-005 is the messy one: Q-109 is cheaper but expired, the tool returns QUOTATION_EXPIRED, then it drafts on Q-110.
 
-### 2. Key Engineering Decisions
+### 2. Decisions
 
-The team used direct orchestration rather than an extra framework. Next-action choice is deterministic Python so traces and tests can show why a tool was selected.
+We did not pull in LangChain. The next tool is chosen in Python from the session state, which made the traces easier to explain in class.
 
-The first price-ranked draft attempt may hit an expired quote. Validation stays in the tool; the observer excludes that quotation and the planner re-plans. That is the required failure/recovery case.
+At first we filtered expired quotes before drafting, which hid the failure. We let it try the cheapest quote first so the recovery is actually visible. That is F-05 in the catalogue.
 
-Gemini function calling from Week 4 remains available. It is not required for the bounded loop, so the workflow can be evaluated without a live model.
+Week 4 function calling is still there if someone has a key. The bounded loop does not need Gemini, which helped later when we wrote the 32 tests.
 
-### 3. Challenges
+### 3. What went wrong
 
-The main challenge was making recovery real. Filtering expired quotes before the first draft hid the failure. The planner now allows a cheapest-price first attempt so `QUOTATION_EXPIRED` is observed and repaired.
+Making recovery honest took a couple of tries. If you pre-filter, the trace looks too clean and you cannot show observe/re-plan.
 
-A second challenge was stopping safely when stock is sufficient. The agent must not fetch quotes or draft in that case. The ITEM-002 trace confirms that early stop.
+The other bug was almost fetching quotes when stock was already enough. ITEM-002 is the check that we do not do that.
 
-### 4. Repository and Task Evidence
+### 4. Evidence
 
-**GitHub Repository:** https://github.com/AINEMBABAZI-KIIZA-DAVIS/BSE4104_Capstone  
-**ClickUp Project:** https://app.clickup.com/1200430000003901/v/li/1200430000006616  
-**Architecture Evidence:** `submission/WEEK5/Agent_Architecture.jpg`
+GitHub: https://github.com/AINEMBABAZI-KIIZA-DAVIS/BSE4104_Capstone  
+ClickUp: https://app.clickup.com/1200430000003901/v/li/1200430000006616  
+Diagram: submission/WEEK5/Agent_Architecture.jpg
 
-### 5. Individual Contributions
+### 5. Who did what
 
-| Member | Responsibility | Evidence |
+| Member | This week | Files |
 | :--- | :--- | :--- |
-| Nasiwa Hafswa | Agent task contract: goal, tools, limits, stop conditions | `docs/architecture/agent-task-contract.md` |
-| Armand Shematsi | Bounded loop and architecture diagram | `src/bounded_agent.py`, `docs/architecture/agent-architecture.md` |
-| Ainembabazi Kiiza Davis | Session state object used by the planner | `src/agent_state.py` |
-| Alvin Mayega Kenneth | Three execution traces and agent tests | `results/week5_execution_traces.md`, `tests/test_bounded_agent.py` |
-| All members | Documentation / GitHub / ClickUp | Week 5 submission pack |
+| Nasiwa Hafswa | Task contract (goal, limits, stops) | docs/architecture/agent-task-contract.md |
+| Armand Shematsi | The loop and the diagram | src/bounded_agent.py, docs/architecture/agent-architecture.md |
+| Ainembabazi Kiiza Davis | WorkflowState | src/agent_state.py |
+| Alvin Mayega Kenneth | The three traces and unit tests | results/week5_execution_traces.md, tests/test_bounded_agent.py |
 
-### 6. Plan for Week 6
+### 6. Next week
 
-During Week 6, the team will document the workflow state model, add justified persistent memory that prefills quantity and requester without auto-routing, demonstrate that memory helps a repeat preparation, and publish an MCP-style interface specification for the approved tools.
+State model, a bit of memory that only prefills name/quantity, and an MCP-style description of the same four tools. No network server.
 
-### 7. Week 5 Status
+### 7. Status
 
-**Overall status:** On track
-
-The agent can decide among approved actions, observe tool results, recover from an expired quote, and stop safely. Human control is retained on routing.
+On track. It can recover from an expired cheapest quote and it stops when it should. Routing is still human.

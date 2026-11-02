@@ -16,10 +16,7 @@
 
 ## What is not stored
 
-- No supplier “winner” or award decision
-- No payment or bank details
-- No automatic `PENDING_APPROVAL` flag
-- No raw Gemini conversation
+We do not keep a winning supplier, bank details, an auto-route flag, or Gemini chat logs.
 
 ## Who can access it
 
@@ -36,15 +33,9 @@
 - `delete_item(item_id)` removes one SKU’s history.
 - `clear()` resets the file to empty preferences.
 
-## How memory improves a legitimate task
+## What memory actually does
 
-On a second preparation of ITEM-004, if the officer omits quantity and name, the agent prefills last quantity (20 cartons) and `Jane Okello`. That reduces re-entry error. The agent still:
-
-1. Re-runs `get_reorder_status`
-2. Re-runs `get_supplier_quotations`
-3. Validates the selected quote in Python
-4. Creates a new DRAFT
-5. Does **not** route unless the officer asks and confirms
+Second run of ITEM-004 without typing quantity and name: it fills 20 cartons and Jane Okello. It still checks stock, still loads quotes, still validates the quote in Python, still writes a new DRAFT, and still does not route unless we ask and type y.
 
 ## Critical-decision boundary
 

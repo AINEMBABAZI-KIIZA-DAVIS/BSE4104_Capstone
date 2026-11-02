@@ -10,15 +10,9 @@
 
 Prepare a **DRAFT** purchase requisition when an SME inventory item is below its reorder threshold, using only approved tools and current application data. Optionally stage routing to a human approver. The agent must not purchase, pay, or award a supplier.
 
-## Why this task needs multiple steps
+## Why this takes more than one step
 
-A single model call cannot safely do this. The agent must:
-
-1. Confirm reorder need in deterministic code.
-2. Read live quotations.
-3. Survive an expired or rejected quote by re-planning.
-4. Write a draft only after validation.
-5. Stop or hand off before any higher-impact routing.
+We cannot dump “prepare a requisition” into one Gemini call. Stock has to be checked in code first, then the CSV quotes, then we have to survive an expired cheapest quote, then write a draft, then stop before routing unless someone confirms.
 
 ## Approved tools
 

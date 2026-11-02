@@ -2,52 +2,48 @@
 
 ## Week 8 Progress Report
 
-**Project:** ProcurePrep UG — AI-Native SME Procurement-Preparation Agent  
-**Week:** Week 8  
-**Week Ending:** 23 October 2026
+**Project:** ProcurePrep UG  
+**Week ending:** 23 October 2026
 
-### 1. Work Completed
+### 1. Work completed
 
-During Week 8, the team reviewed requirements, architecture, prompts, RAG, tools, agent limits, memory, tests and secrets handling. Critical defects already catalogued were confirmed fixed (orchestrator `id` error, expired-quote recovery, retrieve import crash). Remaining limitations were written down instead of overstated as complete.
+We went through the brief again: requirements, prompts, RAG, tools, limits, memory, tests, and secrets. The three code bugs from the catalogue (orchestrator id, expired quote, retrieve crash) are still fixed. Things we could not finish properly are written in known limitations instead of pretending they are done.
 
-The repository README now describes setup, Week 2–7 run commands, environment variables and safety boundaries. `.env.example` is provided; real keys stay out of git.
+README has setup and the week-by-week commands. .env.example is in git; the real key is not.
 
-The final engineering report (8–12 pages plus appendices), demonstration outline and evaluation evidence pack were assembled in `submission/WEEK8/`.
+The report, demo outline, evidence pack, and How to Run doc are under submission/WEEK8/.
 
-### 2. Key Engineering Decisions
+### 2. Decisions
 
-The release is a reproducibly runnable local application, not a cloud deployment. That matches the synthetic CSV data and the charter’s no-live-purchasing rule.
+This is a local venv app, not something we deployed to campus servers. That matches the synthetic CSVs and the rule that we do not buy anything.
 
-The team kept Gemini optional for the bounded agent so examiners can run the 32-scenario suite and Week 5 traces without an API key.
+The bounded agent and the 32 tests still run without GEMINI_API_KEY so a marker can clone and try ITEM-004 / ITEM-005.
 
-### 3. Challenges
+### 3. What went wrong
 
-F-01 and F-02 were mitigated in prompts. The failure did not recur in one live re-test (n=1, temperature 0.1); residual variability remains. Evidence: `results/live_rag_retest.md` (2026-10-18). That file is a Week 8 hardening re-test, not a ninth project week.
+F-01 and F-02: we tightened the RAG prompt and re-ran two cases on 18 October (results/live_rag_retest.md). They did not show up on that single run. We are not treating that as “never again.”
 
-A second limitation is the small 12-chunk corpus and the CLI-only human gate. Both are in-scope for an eight-week capstone and are listed as future work.
+The corpus is still twelve short files, and approval is still a terminal prompt. Both are honest limits for eight weeks.
 
-### 4. Repository and Task Evidence
+### 4. Evidence
 
-**GitHub Repository:** https://github.com/AINEMBABAZI-KIIZA-DAVIS/BSE4104_Capstone  
-**ClickUp Project:** https://app.clickup.com/1200430000003901/v/li/1200430000006616  
-**Architecture Evidence:** `submission/WEEK8/Final_Architecture.jpg`
+GitHub: https://github.com/AINEMBABAZI-KIIZA-DAVIS/BSE4104_Capstone  
+ClickUp: https://app.clickup.com/1200430000003901/v/li/1200430000006616  
+Diagram: submission/WEEK8/Final_Architecture.jpg
 
-### 5. Individual Contributions
+### 5. Who did what
 
-| Member | Responsibility | Evidence |
+| Member | This week | Files |
 | :--- | :--- | :--- |
-| Nasiwa Hafswa | Final report sections 1–3 and known limitations | `docs/final-engineering-report.md` |
-| Armand Shematsi | README, `.env.example`, architecture review | `README.md` |
-| Ainembabazi Kiiza Davis | Demonstration outline and evidence pack | `docs/presentation.md` |
-| Alvin Mayega Kenneth | Final test run and release checklist | `tests/`, `results/week7_evaluation.md` |
-| All members | Documentation / GitHub / ClickUp | Week 8 submission pack |
+| Nasiwa Hafswa | Report opening sections and limitations | docs/final-engineering-report.md, docs/known-limitations.md |
+| Armand Shematsi | README and .env.example | README.md |
+| Ainembabazi Kiiza Davis | Demo outline and evidence pack | docs/presentation.md |
+| Alvin Mayega Kenneth | Last test run | tests/, results/week7_evaluation.md |
 
-### 6. Plan after Week 8
+### 6. After this week
 
-Present the live demonstration: successful ITEM-004 draft, one inspectable trace, and one recovered failure (ITEM-005 expired quote). Answer questions on guardrails and human approval.
+Viva: ITEM-004 draft, one trace or eval table on screen, ITEM-005 recovery. Be ready to explain why the 32 tests do not score Gemini, and that nobody spent money through this program.
 
-### 7. Week 8 Status
+### 7. Status
 
-**Overall status:** Ready for demonstration
-
-The system is bounded, tested, documented and reproducible locally. Humans retain purchasing decisions.
+Ready to demonstrate. Purchasing stays with the human.

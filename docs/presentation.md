@@ -1,48 +1,33 @@
-# ProcurePrep UG — Final Demonstration Outline
+# ProcurePrep UG — Demonstration outline
 
-**Duration:** 12–15 minutes plus questions  
-**Rule:** Show the engineered system, one evidence view and one real failure. Do not only play a happy path.
+About 12–15 minutes, then questions. Show the running program, one log or table, and one thing that went wrong. Do not only show ITEM-004 working.
 
----
+## 1. Problem (1–2 min)
 
-## Slide 1 — Problem and user (1–2 min)
+Storekeeper / owner in Uganda preparing one reorder, not running PPDA e-procurement. Gemini writes comparison text. Python decides whether stock is below the line, whether a quote is expired, and whether routing is allowed.
 
-SME procurement officer / owner-manager in Uganda. Task: prepare a reorder, not run a national e-procurement platform. AI compares quotes and drafts. Python owns thresholds, validation and approval.
+## 2. How it grew (2 min)
 
-## Slide 2 — Architecture progression (2 min)
+Week 2: model and two prompts. Week 3: RAG over twelve files. Week 4: four tools. Week 5: the loop. Week 6: state plus a small memory file. Week 7: 32 tests and guardrails.
 
-Week 2 model + prompts → Week 3 RAG → Week 4 tools → Week 5 bounded loop → Week 6 state/memory → Week 7 eval/guardrails.
+## 3. Live success (4 min)
 
-## Slide 3 — Live success (4 min)
-
-```
 python src/bounded_agent.py --item ITEM-004
-```
 
-Show: deficit 20 cartons, quotes Q-107 / Q-108, DRAFT on cheapest valid Q-107, no route unless asked.
+Expect stock 5 against 25 (deficit 20), quotes Q-107 and Q-108, draft on Q-107, status DRAFT. Do not route unless we ask.
 
-## Slide 4 — Evidence view (2 min)
+## 4. Evidence (2 min)
 
-Open `results/week7_evaluation.md` (32/32) or a JSONL line from `results/traces/week7_eval.jsonl` (session, tool, latency_ms, outcome). The 32-scenario suite tests the deterministic layer (reorder gate, validation, guardrails, roles, confirmation, stop conditions). It does not evaluate LLM comparison quality. LLM behaviour is covered by the 10-case Week 2 table and the 15-question Week 3 RAG set; a live Gemini scenario set is future work.
+Open results/week7_evaluation.md (32/32) or one line in results/traces/week7_eval.jsonl. Say clearly that those 32 cases test the Python layer, not Gemini’s writing. Gemini evidence is still week 2 and week 3.
 
-## Slide 5 — Real failure and recovery (2 min)
+## 5. Failure (2 min)
 
-```
 python src/bounded_agent.py --item ITEM-005
-```
 
-Q-109 expired → `QUOTATION_EXPIRED` → re-plan Q-110. Also mention F-01/F-02 prompt mitigations and live re-test (n=1, temp 0.1) with residual model variability if asked about RAG limits.
+Q-109 is expired, the tool says QUOTATION_EXPIRED, then it drafts Q-110. If they ask about RAG, F-01/F-02 were prompt fixes; one live re-test on 18 Oct did not repeat them; the model can still vary.
 
-## Slide 6 — Guardrails and lessons (1–2 min)
+## 6. Guardrails (1–2 min)
 
-Injection and award/payment strings blocked. Unknown tools rejected. Routing needs a human. Lesson: keep spend decisions out of the model.
+Unknown tools are rejected. award_contract is not a tool. Routing needs y. Strings about ignoring instructions or approving payment are blocked. End with: we did not create a purchase order.
 
----
-
-### Demo checklist
-
-- [ ] venv active; `python -m unittest discover -s tests -q` green  
-- [ ] ITEM-004 success  
-- [ ] ITEM-005 recovery  
-- [ ] One eval or trace file on screen  
-- [ ] State clearly: no purchase order was created  
+Checklist before the slot: venv on, tests green, ITEM-004, ITEM-005, one results file visible.

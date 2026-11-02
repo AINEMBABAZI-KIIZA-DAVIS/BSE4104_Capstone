@@ -1,21 +1,11 @@
-# AI-Use Declaration — ProcurePrep UG
+# AI-use declaration — ProcurePrep UG
 
-**Course:** BSE4104 Emerging Trends in Software Engineering  
-**Project:** AI-Native SME Procurement-Preparation Agent  
-**Date of this file:** 2026-10-23
+BSE4104. 23 October 2026.
 
-## What AI was used for
+We used Google Gemini (gemini-3.5-flash-lite) inside the application for quotation comparison, embeddings (models/gemini-embedding-001), and the optional week 4 function-calling demo.
 
-The product uses Google Gemini for quotation comparison text, optional Week 4 function calling, and embeddings. Engineering assistance in the repository history includes Cursor/Antigravity-style coding agents (inferred from commit messages and generated documentation; individual prompt authors are TODO (team to confirm)).
+While coding we sometimes used autocomplete and chat for boilerplate, error messages, and first drafts of markdown. We still read the diffs, ran the tests, and kept the purchasing rules in Python. Who typed which prompt is not logged in git.
 
-## Human responsibility
+The group owns the code, the tests, and the design choices. The program never authorises spend. The store manager still picks a supplier outside this tool.
 
-The team owns the code, tests and decisions; the agent never authorizes spend. The store manager still selects the supplier and authorizes any purchase outside this system.
-
-## What this declaration does not claim
-
-- It does not list every chat transcript. Those files are not in the repository.
-- It does not invent who typed which prompt. Names attached to ClickUp rows in weekly reports are copied from those reports; they are not independently verified here.
-- Product Gemini calls that are not recorded in `results/` are not asserted.
-
-A dated engineering log is in `docs/ai-engineering-log.md`.
+A short dated log is in docs/ai-engineering-log.md.

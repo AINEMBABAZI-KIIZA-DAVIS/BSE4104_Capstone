@@ -1,8 +1,10 @@
 venv/
+.venv/
+.env
 .DS_Store
 __pycache__/
 *.pyc
-.env
+*.log
 chroma_db/
 data/requisitions.json
 data/agent_memory.json
