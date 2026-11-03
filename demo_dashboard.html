@@ -19,24 +19,28 @@
     }
 
     :root {
-      --ink: #0f1b2d;
+      --ink: #0f172a;
       --ink2: #1b2b44;
-      --paper: #f4f6f9;
+      --paper: #f5f7f4;
       --card: #fff;
-      --line: #e3e8ef;
-      --muted: #64748b;
-      --text: #1e293b;
-      --brand: #0e6b5c;
-      --brand-soft: #e3f3ef;
+      --line: #dfe7dc;
+      --muted: #526271;
+      --text: #1b2430;
+      --brand: #0f766e;
+      --brand-soft: #dff7f4;
       --blue: #2459d8;
       --blue-soft: #e8eefc;
       --amber: #b7791f;
       --amber-soft: #fdf3dc;
-      --red: #c53030;
+      --red: #d6292b;
       --red-soft: #fdeaea;
       --violet: #6b46c1;
       --violet-soft: #efe9fb;
-      --yellow: #fcdc04;
+      --yellow: #facc15;
+      --uganda-black: #111827;
+      --uganda-yellow: #facc15;
+      --uganda-red: #d6292b;
+      --uganda-green: #0f766e;
       --sans: 'Plus Jakarta Sans', system-ui, sans-serif;
       --mono: 'IBM Plex Mono', ui-monospace, monospace;
     }
@@ -54,6 +58,84 @@
       grid-template-columns: 260px 1fr;
       font-size: 15px;
       line-height: 1.55
+    }
+
+    .app-loader {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(17, 24, 39, .82);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      transition: opacity .35s ease, visibility .35s ease;
+    }
+
+    .app-loader.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .loader-card {
+      width: min(380px, 90vw);
+      background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(245,247,244,.96));
+      border: 1px solid rgba(148, 163, 184, .22);
+      border-radius: 24px;
+      padding: 2rem 1.5rem 1.4rem;
+      text-align: center;
+      box-shadow: 0 22px 55px rgba(15, 23, 42, .24);
+    }
+
+    .loader-flag {
+      width: 100px;
+      height: 18px;
+      margin: 0 auto .9rem;
+      border-radius: 999px;
+      background: linear-gradient(90deg,
+        var(--uganda-black) 0 33%,
+        var(--uganda-yellow) 33% 66%,
+        var(--uganda-red) 66% 100%);
+      box-shadow: inset 0 0 0 2px rgba(17, 24, 39, .08);
+    }
+
+    .loader-mark {
+      width: 62px;
+      height: 62px;
+      margin: 0 auto .8rem;
+      display: grid;
+      place-items: center;
+      border-radius: 20px;
+      background: linear-gradient(135deg, var(--uganda-green), var(--uganda-black));
+      color: white;
+      font-weight: 800;
+      font-size: 1.4rem;
+      box-shadow: 0 12px 26px rgba(17, 24, 39, .18);
+    }
+
+    .loader-logo {
+      font-size: clamp(1.55rem, 2vw, 1.85rem);
+      font-weight: 800;
+      letter-spacing: -.04em;
+      color: var(--ink);
+      margin-bottom: .2rem;
+    }
+
+    .loader-subtitle {
+      color: var(--muted);
+      font-size: .82rem;
+      margin-bottom: 1rem;
+    }
+
+    .loader-spinner {
+      width: 34px;
+      height: 34px;
+      border: 3px solid rgba(15, 118, 110, .16);
+      border-top-color: var(--uganda-green);
+      border-radius: 50%;
+      margin: 0 auto;
+      animation: sp .9s linear infinite;
     }
 
     button {
@@ -148,30 +230,45 @@
       border-radius: 99px
     }
 
-    .team {
+    .side-stack {
       margin-top: auto;
       border-top: 1px solid rgba(255, 255, 255, .1);
       padding-top: 1rem;
-      font-size: .78rem;
       display: flex;
       flex-direction: column;
-      gap: .55rem
+      gap: .8rem
     }
 
-    .team div {
+    .side-stack .meta {
+      font-size: .72rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #8fa3bf;
+      margin-bottom: .1rem
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: .4rem .7rem;
+      border-radius: 999px;
+      background: rgba(63, 185, 162, .12);
+      border: 1px solid rgba(63, 185, 162, .25);
+      color: #9de9d7;
+      font-size: .72rem;
+      font-weight: 700
+    }
+
+    .tiny-stat {
       display: flex;
       justify-content: space-between;
-      gap: .5rem
+      gap: .6rem;
+      font-size: .77rem;
+      color: #dbe6f5
     }
 
-    .team span {
+    .tiny-stat span {
       color: #8fa3bf
-    }
-
-    .team b {
-      color: #e2e8f0;
-      font-weight: 600;
-      text-align: right
     }
 
     main {
@@ -182,6 +279,13 @@
 
     .page-head {
       margin-bottom: 1.75rem
+    }
+
+    .page-head-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 1rem
     }
 
     .page-head h1 {
@@ -195,6 +299,12 @@
       color: var(--muted);
       max-width: 62ch;
       margin-top: .25rem
+    }
+
+    .page-head-actions {
+      display: flex;
+      align-items: center;
+      gap: .75rem
     }
 
     .panel {
@@ -274,6 +384,99 @@
 
     .kpi.good strong {
       color: var(--brand)
+    }
+
+    .hero-panel {
+      background: linear-gradient(135deg, #0f1b2d 0%, #183d5b 45%, #0d654f 100%);
+      border-radius: 18px;
+      padding: 1.5rem;
+      color: #edf6ff;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 18px 40px rgba(15, 27, 45, .12)
+    }
+
+    .hero-panel .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      border-radius: 999px;
+      padding: .38rem .75rem;
+      background: rgba(255, 255, 255, .12);
+      border: 1px solid rgba(255, 255, 255, .15);
+      font-size: .72rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #dfeefb;
+      margin-bottom: .9rem
+    }
+
+    .hero-panel h1 {
+      font-size: clamp(2rem, 2.8vw, 3rem);
+      letter-spacing: -.05em;
+      line-height: 1.05;
+      color: #fff;
+      margin-bottom: .6rem
+    }
+
+    .hero-panel p {
+      color: rgba(237, 246, 255, .8);
+      max-width: 60ch;
+      margin-bottom: 1.1rem
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .6rem
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .42rem .7rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .08);
+      border: 1px solid rgba(255, 255, 255, .12);
+      color: #edf6ff;
+      font-weight: 600;
+      font-size: .78rem
+    }
+
+    .problem-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem
+    }
+
+    .signal {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 1.1rem 1rem;
+    }
+
+    .signal .label {
+      display: inline-block;
+      font-size: .72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: .45rem
+    }
+
+    .signal strong {
+      display: block;
+      font-size: 1.15rem;
+      line-height: 1.35;
+      color: var(--ink)
+    }
+
+    .signal p {
+      font-size: .8rem;
+      color: var(--muted);
+      margin-top: .25rem
     }
 
     .roles {
@@ -720,6 +923,58 @@
       margin-bottom: 1.25rem
     }
 
+    .eval-hero {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.25rem
+    }
+
+    .visual-metric {
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 1rem 1.1rem;
+      min-height: 108px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center
+    }
+
+    .visual-metric span {
+      color: var(--muted);
+      font-size: .75rem;
+      text-transform: uppercase;
+      letter-spacing: .08em
+    }
+
+    .visual-metric strong {
+      display: block;
+      margin-top: .35rem;
+      font-size: clamp(1.7rem, 2.2vw, 2.4rem);
+      color: var(--ink);
+      letter-spacing: -.04em;
+      line-height: 1.1
+    }
+
+    .visual-metric small {
+      color: var(--muted);
+      font-size: .78rem;
+      margin-top: .25rem
+    }
+
+    .visual-metric.success strong {
+      color: var(--brand)
+    }
+
+    .visual-metric.accent strong {
+      color: var(--blue)
+    }
+
+    .visual-metric.warn strong {
+      color: var(--amber)
+    }
+
     .table-wrap {
       overflow-x: auto;
       background: var(--card);
@@ -1031,7 +1286,7 @@
         white-space: nowrap
       }
 
-      .team {
+      .side-stack {
         display: none
       }
 
@@ -1042,7 +1297,8 @@
       .grid2,
       .grid3,
       .split,
-      .kpis {
+      .kpis,
+      .problem-grid {
         grid-template-columns: 1fr
       }
 
@@ -1077,10 +1333,20 @@
 
 <body>
 
+  <div id="app-loader" class="app-loader" aria-live="polite" aria-label="Loading ProcurePrep Uganda">
+    <div class="loader-card">
+      <div class="loader-flag" aria-hidden="true"></div>
+      <div class="loader-mark">P</div>
+      <div class="loader-logo">ProcurePrep Uganda</div>
+      <div class="loader-subtitle">Loading live procurement checks…</div>
+      <div class="loader-spinner"></div>
+    </div>
+  </div>
+
   <aside>
     <div class="brand">
       <div class="flag"></div>
-      <div><b>ProcurePrep UG</b><small>BSE4104 Capstone</small></div>
+      <div><b>ProcurePrep Uganda</b><small>BSE4104 Capstone</small></div>
     </div>
     <nav role="tablist" aria-label="Sections">
       <button role="tab" id="tab-overview" aria-selected="true" onclick="showTab('overview')">Overview</button>
@@ -1091,79 +1357,86 @@
       <button role="tab" id="tab-architecture" aria-selected="false"
         onclick="showTab('architecture')">Architecture</button>
     </nav>
-    <div class="team">
-      <div><span>Architect</span><b>Nasiwa Hafswa</b></div>
-      <div><span>Live demo</span><b>Armand Shematsi</b></div>
-      <div><span>Technical</span><b>Ainembabazi K. Davis</b></div>
-      <div><span>Evaluation</span><b>Alvin Mayega Kenneth</b></div>
+    <div class="side-stack">
+      <div class="meta">System status</div>
+      <div class="pill">Live API + deterministic checks</div>
+      <div class="tiny-stat"><span>Decision</span><strong>Human-approved</strong></div>
+      <div class="tiny-stat"><span>Scope</span><strong>Procurement prep</strong></div>
+      <div class="tiny-stat"><span>Risk</span><strong>No auto-PO</strong></div>
     </div>
   </aside>
 
   <main>
 
     <section class="panel active" id="panel-overview" role="tabpanel">
-      <div class="page-head">
-        <h1>Procurement preparation, with a human in charge</h1>
-        <p>When stock runs low, the agent checks inventory, compares supplier quotes and drafts a requisition. A person
-          approves before anything moves.</p>
+      <div class="hero-panel">
+        <div class="eyebrow">What the system solves</div>
+        <h1>Procurement teams need faster reviews without risking bad spend.</h1>
+        <p>This system monitors item stock, checks supplier quotes, and drafts a requisition only when the facts are valid.
+          A human approval gate keeps every step accountable and prevents silent or unsafe purchases.</p>
+        <div class="badge-row">
+          <span class="badge">Live stock checks</span>
+          <span class="badge">Quote validation</span>
+          <span class="badge">Human approval gate</span>
+          <span class="badge">Deterministic evaluation</span>
+        </div>
       </div>
       <div class="kpis mb">
-        <div class="kpi good"><small>Evaluation score</small><strong>32/32</strong><span>All scenarios pass across 6
-            categories</span></div>
-        <div class="kpi"><small>Approved tools</small><strong>4</strong><span>Two read-only, one draft write, one
-            gated</span></div>
-        <div class="kpi"><small>Money spent</small><strong>UGX 0</strong><span>No purchase orders are ever issued</span>
+        <div class="kpi good"><small>Evaluation score</small><strong>32/32</strong><span>All scenarios pass across 6 categories</span></div>
+        <div class="kpi"><small>Approved tools</small><strong>4</strong><span>Two read-only, one draft write, one gated</span></div>
+        <div class="kpi"><small>Money spent</small><strong>UGX 0</strong><span>No purchase orders are ever issued</span></div>
+      </div>
+      <div class="problem-grid">
+        <div class="signal">
+          <div class="label">Problem</div>
+          <strong>Manual reorder checks are slow, inconsistent and risky.</strong>
+          <p>Teams often review stock, quotes and approvals in fragmented ways, which creates delays and error-prone decisions.</p>
+        </div>
+        <div class="signal">
+          <div class="label">Solution</div>
+          <strong>One bounded workflow that validates the facts before drafting anything.</strong>
+          <p>The app checks stock thresholds, compares quotations and keeps a clear approval point for the actual decision-maker.</p>
+        </div>
+        <div class="signal">
+          <div class="label">Outcome</div>
+          <strong>Faster preparation, clearer auditability, lower operational risk.</strong>
+          <p>The system helps teams respond quickly while preserving traceability and control over each step.</p>
         </div>
       </div>
       <div class="grid2">
         <div class="card">
-          <h2>Who decides what</h2>
+          <h2>How the system works</h2>
           <div class="roles">
-            <div class="role"><b><i style="background:var(--blue)"></i>Python</b><span>Reorder math, expiry checks, tool
-                allow-list and stop conditions.</span></div>
-            <div class="role"><b><i style="background:var(--violet)"></i>Gemini</b><span>Explains quote comparisons and
-                risk flags. Nothing else.</span></div>
-            <div class="role"><b><i style="background:var(--brand)"></i>Human</b><span>Confirms every routing step
-                before the status changes.</span></div>
+            <div class="role"><b><i style="background:var(--blue)"></i>Check</b><span>Reads stock thresholds and item status before anything is proposed.</span></div>
+            <div class="role"><b><i style="background:var(--violet)"></i>Compare</b><span>Fetches valid supplier quotations and filters expired or invalid offers.</span></div>
+            <div class="role"><b><i style="background:var(--brand)"></i>Approve</b><span>Creates a draft requisition and waits for a human confirmation before routing.</span></div>
           </div>
         </div>
         <div class="card">
-          <h2>Eight-week build</h2>
+          <h2>Build timeline</h2>
           <ol class="timeline">
-            <li><span>Week 1</span>
-              <p>AI boundary matrix, project charter, architecture</p>
-            </li>
-            <li><span>Week 2</span>
-              <p>Foundation model, prompt v1.0 to v1.1, 10-case evaluation</p>
-            </li>
-            <li><span>Week 3</span>
-              <p>RAG pipeline, ChromaDB, 12-document corpus, 15-question evaluation</p>
-            </li>
-            <li><span>Week 4</span>
-              <p>Four tools, Gemini function calling, human gate on routing</p>
-            </li>
-            <li><span>Week 5</span>
-              <p>Bounded agent loop: sense, plan, act, observe, stop</p>
-            </li>
-            <li><span>Week 6</span>
-              <p>WorkflowState, persistent memory, MCP-style adapter</p>
-            </li>
-            <li><span>Week 7</span>
-              <p>Guardrails, 32-scenario evaluation, JSONL traces</p>
-            </li>
-            <li><span>Week 8</span>
-              <p>Final report, demo, evidence pack, submission</p>
-            </li>
+            <li><span>Week 1</span><p>Architecture, scope and control boundaries</p></li>
+            <li><span>Week 2</span><p>Prompt tuning and early evaluation coverage</p></li>
+            <li><span>Week 3</span><p>RAG grounding and procurement corpus layer</p></li>
+            <li><span>Week 4</span><p>Tool routing and human approval gate</p></li>
+            <li><span>Week 5</span><p>Bounded loop and decision traceability</p></li>
+            <li><span>Week 6</span><p>Memory and MCP-style orchestration</p></li>
+            <li><span>Week 7</span><p>32-scenario validation and guardrails</p></li>
+            <li><span>Week 8</span><p>Final demo, packaging and submission</p></li>
           </ol>
         </div>
       </div>
     </section>
 
     <section class="panel" id="panel-live" role="tabpanel">
-      <div class="page-head">
-        <h1>Live agent</h1>
-        <p>Pick an item and a requester, then run the bounded loop. The demo runs in your browser and mirrors the Python
-          agent's decisions.</p>
+      <div class="page-head page-head-row">
+        <div>
+          <h1>Live agent</h1>
+          <p>Choose an item and run the bounded process. The decisions are still driven by the Python workflow.</p>
+        </div>
+        <div class="page-head-actions">
+          <button class="btn btn-ghost" type="button" data-refresh onclick="refreshLiveData()">Refresh live data</button>
+        </div>
       </div>
       <div class="grid2">
         <div>
@@ -1180,12 +1453,11 @@
                   <option value="ITEM-007">ITEM-007 · LaserJet Imaging Drum (no quotes)</option>
                 </select>
               </div>
-              <div><label class="f" for="requester-select">Requested by</label>
-                <select id="requester-select">
-                  <option value="Jane Okello|procurement_officer">Jane Okello · Procurement Officer</option>
-                  <option value="Mary Atim|procurement_officer">Mary Atim · Procurement Officer</option>
-                  <option value="David Ssentongo|store_manager">David Ssentongo · Store Manager (cannot route)</option>
-                </select>
+              <div><label class="f" for="user-select">Demo user</label>
+                <select id="user-select" onchange="updateSelectedUser()"></select>
+              </div>
+              <div><label class="f">Selected role</label>
+                <div id="user-role-note" class="note" style="margin-bottom:0">Loading demo users…</div>
               </div>
             </div>
           </div>
@@ -1193,9 +1465,18 @@
             <h2>Item status</h2>
             <div id="item-info-body"></div>
           </div>
+          <div class="card mb">
+            <h2>Inventory upload</h2>
+            <p style="font-size:.82rem;color:var(--muted);margin-bottom:.8rem">Upload a local CSV to test the workflow against a fresh dataset without changing the default demo data.</p>
+            <input id="inventory-file" type="file" accept=".csv" style="width:100%;padding:.7rem;border:1px solid var(--line);border-radius:8px;background:#fff" />
+            <div style="display:flex;gap:.75rem;margin-top:.8rem;flex-wrap:wrap">
+              <button class="btn btn-primary" type="button" onclick="uploadInventoryFile()">Upload inventory</button>
+              <button class="btn btn-ghost" type="button" onclick="resetInventoryFile()">Reset default data</button>
+            </div>
+          </div>
           <div style="display:flex;gap:.75rem">
-            <button class="btn btn-primary" id="run-btn" onclick="runAgent()" style="flex:1">Run agent</button>
-            <button class="btn btn-ghost" onclick="resetDemo()">Reset</button>
+            <button class="btn btn-primary" id="run-btn" type="button" onclick="runAgent()" style="flex:1">Run agent</button>
+            <button class="btn btn-ghost" type="button" onclick="resetDemo()">Reset</button>
           </div>
         </div>
         <div>
@@ -1219,14 +1500,34 @@
     </section>
 
     <section class="panel" id="panel-eval" role="tabpanel">
-      <div class="page-head">
-        <h1>Evaluation: 32 of 32 scenarios pass</h1>
-        <p>Week 7 suite. Runs without the Gemini API because it tests the deterministic Python layer.</p>
+      <div class="page-head page-head-row">
+        <div>
+          <h1>Evaluation: 32 of 32 scenarios pass</h1>
+          <p>Deterministic checks for the procurement workflow, refreshed live from the backend.</p>
+        </div>
+        <div class="page-head-actions">
+          <button class="btn btn-ghost" type="button" data-refresh onclick="refreshLiveData()">Refresh live data</button>
+        </div>
+      </div>
+      <div class="eval-hero">
+        <div class="visual-metric success">
+          <span>Scenarios</span>
+          <strong>32</strong>
+          <small>All passed</small>
+        </div>
+        <div class="visual-metric accent">
+          <span>Contracts</span>
+          <strong>4</strong>
+          <small>Approved tools</small>
+        </div>
+        <div class="visual-metric warn">
+          <span>Human gate</span>
+          <strong>Yes</strong>
+          <small>No auto-PO</small>
+        </div>
       </div>
       <div class="cats" id="eval-cats"></div>
-      <div class="note"><b>What these tests cover.</b> Reorder gating, validation, guardrails, role checks, confirmation
-        and stop conditions. They do not score LLM comparison quality. That is covered by the 10-case Week 2 prompt
-        table and the 15-question Week 3 RAG set.</div>
+      <div class="note"><b>What these tests cover.</b> Reorder checks, validation, guardrails, role enforcement, approval gates and safe stop conditions.</div>
       <div class="table-wrap">
         <table>
           <thead>
@@ -1323,7 +1624,7 @@
     <section class="panel" id="panel-architecture" role="tabpanel">
       <div class="page-head">
         <h1>Architecture</h1>
-        <p>A bounded loop with deterministic control. Language models explain; they never decide.</p>
+        <p>A bounded loop with deterministic control. The model explains; the system decides safely.</p>
       </div>
       <div class="card mb">
         <h2>Agent pipeline</h2>
@@ -1442,11 +1743,15 @@
     const $ = id => document.getElementById(id);
     const fmt = n => n.toLocaleString();
     let ITEMS = { ...FALLBACK_ITEMS };
+    let DEMO_USERS = [];
     let running = false, draft = null, role = 'procurement_officer';
+    let isRefreshing = false;
+    let isBooting = true;
 
     async function apiFetch(path, options = {}) {
+      const isFormData = options.body instanceof FormData;
       const response = await fetch(`${API_BASE}${path}`, {
-        headers: { 'Content-Type': 'application/json' },
+        headers: isFormData ? { ...(options.headers || {}) } : { 'Content-Type': 'application/json', ...(options.headers || {}) },
         ...options,
       });
       const text = await response.text();
@@ -1457,11 +1762,20 @@
       return payload;
     }
 
+    let lastEvalLoadTs = 0;
+
     function showTab(name) {
       document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('nav button').forEach(b => b.setAttribute('aria-selected', 'false'));
       $('panel-' + name).classList.add('active');
       $('tab-' + name).setAttribute('aria-selected', 'true');
+
+      if (name === 'live') {
+        updateItemInfo();
+      }
+      if (name === 'eval') {
+        loadEvaluation(true);
+      }
     }
 
     function populateItemOptions() {
@@ -1471,6 +1785,35 @@
         .map(itemId => `<option value="${itemId}">${itemId} · ${ITEMS[itemId].item_name}</option>`)
         .join('');
       updateItemInfo();
+    }
+
+    async function loadDemoUsers() {
+      try {
+        const data = await apiFetch('/api/demo-users');
+        DEMO_USERS = Array.isArray(data.users) ? data.users : [];
+        if (!DEMO_USERS.length) {
+          throw new Error('No demo users available');
+        }
+        const select = $('user-select');
+        select.innerHTML = DEMO_USERS.map(user => `<option value="${user.id}">${user.name} · ${user.role}</option>`).join('');
+        updateSelectedUser();
+      } catch (error) {
+        DEMO_USERS = [
+          { id: 'u-101', name: 'Jane Okello', role: 'procurement_officer' },
+          { id: 'u-102', name: 'Peter Nsubuga', role: 'store_manager' },
+          { id: 'u-103', name: 'Sarah Nakato', role: 'vendor' }
+        ];
+        const select = $('user-select');
+        select.innerHTML = DEMO_USERS.map(user => `<option value="${user.id}">${user.name} · ${user.role}</option>`).join('');
+        updateSelectedUser();
+      }
+    }
+
+    function updateSelectedUser() {
+      const selected = DEMO_USERS.find(user => user.id === $('user-select').value) || DEMO_USERS[0];
+      if (!selected) return;
+      role = selected.role;
+      $('user-role-note').innerHTML = `<b>${selected.name}</b><br><span style="color:var(--muted)">${selected.role}</span>`;
     }
 
     async function loadCatalog() {
@@ -1547,6 +1890,15 @@
 
     function finish() {
       const b = $('run-btn'); b.innerHTML = 'Run agent'; b.disabled = false; running = false;
+      $('item-select').disabled = false;
+      $('user-select').disabled = false;
+      document.querySelectorAll('[data-refresh]').forEach(btn => btn.disabled = false);
+    }
+
+    function beginRunState() {
+      $('item-select').disabled = true;
+      $('user-select').disabled = true;
+      document.querySelectorAll('[data-refresh]').forEach(btn => btn.disabled = true);
     }
 
     function compareNote(quotes, deficit) {
@@ -1563,11 +1915,68 @@
       return `Lowest unit price: <strong>${cheapest.quotation_id}</strong> (UGX ${fmt(Number(cheapest.unit_price))}).${fastest ? ` Fastest delivery: <strong>${fastest.quotation_id}</strong>.` : ''} Risk flags: ${flags.length ? flags.join('; ') : 'none'}. Explanation only, no selection.`;
     }
 
+    function showLoader() {
+      const loader = $('app-loader');
+      if (loader) loader.classList.remove('hidden');
+    }
+
+    function hideLoader() {
+      const loader = $('app-loader');
+      if (loader) loader.classList.add('hidden');
+    }
+
+    async function bootstrapDashboard() {
+      showLoader();
+      isBooting = true;
+      try {
+        await Promise.all([
+          loadDemoUsers(),
+          loadCatalog()
+        ]);
+        await updateItemInfo();
+        toast('Dashboard ready.');
+      } finally {
+        isBooting = false;
+        hideLoader();
+      }
+    }
+
+    async function refreshLiveData() {
+      if (isRefreshing || isBooting) return;
+      isRefreshing = true;
+      const refreshButtons = [...document.querySelectorAll('[data-refresh]')];
+      refreshButtons.forEach(btn => {
+        btn.disabled = true;
+        btn.textContent = 'Refreshing...';
+      });
+      try {
+        const activePanel = document.querySelector('.panel.active')?.id;
+        if (activePanel === 'panel-live') {
+          await Promise.all([loadCatalog(), updateItemInfo()]);
+        } else if (activePanel === 'panel-eval') {
+          await loadEvaluation(true);
+        } else {
+          await Promise.all([loadCatalog(), updateItemInfo()]);
+        }
+        toast('Live data synced.');
+      } catch (error) {
+        toast('Refresh failed — showing the latest safe fallback data.');
+      } finally {
+        isRefreshing = false;
+        refreshButtons.forEach(btn => {
+          btn.disabled = false;
+          btn.textContent = 'Refresh live data';
+        });
+      }
+    }
+
     async function runAgent() {
       if (running) return; running = true;
+      beginRunState();
       const itemId = $('item-select').value;
-      const [requester, reqRole] = $('requester-select').value.split('|');
-      role = reqRole;
+      const selectedUser = DEMO_USERS.find(user => user.id === $('user-select').value) || DEMO_USERS[0];
+      const requester = selectedUser ? selectedUser.name : 'Demo User';
+      role = selectedUser ? selectedUser.role : 'procurement_officer';
       $('agent-log').innerHTML = ''; $('req').style.display = 'none';
       const b = $('run-btn'); b.innerHTML = '<span class="spin"></span> Running'; b.disabled = true;
 
@@ -1612,6 +2021,7 @@
             quantity,
             selected_quotation_id: chosen.quotation_id,
             requested_by: requester,
+            requested_by_user_id: selectedUser.id,
           }),
         });
 
@@ -1642,9 +2052,9 @@
       $('req-fields').innerHTML = [['Requisition', d.id], ['Item', d.itemId], ['Quantity', `${d.qty} ${unit}`], ['Quote', d.quote.quotation_id], ['Supplier', d.quote.supplier_name], ['Total', `UGX ${fmt(d.total)}`]]
         .map(([k, v]) => `<div><small>${k}</small><span>${v}</span></div>`).join('');
       const tag = $('req-status'); tag.textContent = 'DRAFT'; tag.className = 'tag t-warn';
-      const canRoute = role === 'procurement_officer';
+      const canRoute = role === 'procurement_officer' || role === 'store_manager';
       $('approve-btn').disabled = !canRoute; $('decline-btn').disabled = false;
-      $('approve-note').textContent = canRoute ? 'Routing changes workflow state and needs your confirmation.' : 'UNAUTHORIZED_ROLE: store_manager cannot route requisitions. A procurement officer must approve.';
+      $('approve-note').textContent = canRoute ? 'Routing changes workflow state and needs your confirmation.' : 'UNAUTHORIZED_ROLE: this demo user cannot approve requisitions.';
       $('req').style.display = 'block';
     }
 
@@ -1658,8 +2068,15 @@
 
     async function approveRequisition() {
       if (!draft) return;
+      const selectedUser = DEMO_USERS.find(user => user.id === $('user-select').value) || DEMO_USERS[0];
       try {
-        const result = await apiFetch(`/api/requisitions/${draft.id}/approve`, { method: 'POST' });
+        const result = await apiFetch(`/api/requisitions/${draft.id}/approve`, {
+          method: 'POST',
+          body: JSON.stringify({
+            approved_by_user_id: selectedUser.id,
+            approved_by_role: selectedUser.role,
+          }),
+        });
         logHuman('act', 'Human confirmed (y)', `route_requisition_for_approval(requisition_id="${draft.id}") → ${result.status}`);
         const tag = $('req-status'); tag.textContent = 'PENDING APPROVAL'; tag.className = 'tag t-ok';
         $('approve-btn').disabled = true; $('decline-btn').disabled = true;
@@ -1675,6 +2092,39 @@
       $('approve-btn').disabled = true; $('decline-btn').disabled = true;
       $('approve-note').textContent = 'Declined. Status stays DRAFT. The agent never issues a PO.';
       toast('Declined. The system never self-approves.');
+    }
+
+    async function uploadInventoryFile() {
+      const input = $('inventory-file');
+      if (!input.files || !input.files.length) {
+        toast('Choose a CSV file before uploading.');
+        return;
+      }
+      const file = input.files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+      try {
+        const result = await apiFetch('/api/inventory/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        toast(`${result.items_loaded} items loaded from the uploaded inventory.`);
+        await loadCatalog();
+        await updateItemInfo();
+      } catch (error) {
+        toast('Upload failed — check the CSV format and retry.');
+      }
+    }
+
+    async function resetInventoryFile() {
+      try {
+        await apiFetch('/api/inventory/reset', { method: 'POST' });
+        toast('Default inventory restored.');
+        await loadCatalog();
+        await updateItemInfo();
+      } catch (error) {
+        toast('Reset failed.');
+      }
     }
 
     function resetDemo() {
@@ -1731,7 +2181,14 @@
       $('eval-tbody').innerHTML = EVAL_DATA.map(r => `<tr><td class="m">${r[0]}</td><td><span class="tag ${CAT_TAG[r[1]]}">${CAT_LABEL[r[1]]}</span></td><td class="m">${r[2]}</td><td class="m" style="color:var(--muted)">${r[3]}</td><td class="pass">PASS</td></tr>`).join('');
     }
 
-    async function loadEvaluation() {
+    async function loadEvaluation(force = false) {
+      const evalTabOpen = document.querySelector('#tab-eval')?.getAttribute('aria-selected') === 'true';
+      if (!evalTabOpen && !force) return;
+
+      const now = Date.now();
+      if (!force && (now - lastEvalLoadTs) < 1500) return;
+      lastEvalLoadTs = now;
+
       try {
         const data = await apiFetch('/api/evaluation');
         renderEvaluationData(data);
@@ -1749,8 +2206,7 @@
     }
 
     document.getElementById('item-select').addEventListener('change', updateItemInfo);
-    loadEvaluation();
-    loadCatalog();
+    bootstrapDashboard();
   </script>
 </body>
 

@@ -5,8 +5,9 @@ import time
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from config import settings
@@ -14,7 +15,7 @@ from evaluation.scenarios import SCENARIOS
 from src.agent_memory import AgentMemory
 from src.bounded_agent import run_bounded_agent
 from src.mcp_interface import call_mcp_tool
-from src.procure_data import load_inventory
+from src.procure_data import load_inventory, reset_inventory_path, set_inventory_path
 from src.requisition_store import RequisitionStore
 from src.tools import (
     create_requisition_draft,
@@ -24,6 +25,15 @@ from src.tools import (
     set_reference_date,
     set_store,
 )
+
+DEMO_USERS = [
+    {"id": "u-101", "name": "Jane Okello", "role": "procurement_officer", "department": "Procurement"},
+    {"id": "u-102", "name": "Peter Nsubuga", "role": "store_manager", "department": "Stores"},
+    {"id": "u-103", "name": "Sarah Nakato", "role": "vendor", "department": "Suppliers"},
+    {"id": "u-104", "name": "Daniel Kintu", "role": "procurement_officer", "department": "Operations"},
+]
+
+DEMO_USER_BY_ID = {user["id"]: user for user in DEMO_USERS}
 
 app = FastAPI(
     title="ProcurePrep UG API",
@@ -107,6 +117,18 @@ class DraftRequest(BaseModel):
     quantity: int = Field(..., gt=0)
     selected_quotation_id: str = Field(..., min_length=1)
     requested_by: str = Field(..., min_length=1)
+    requested_by_user_id: str | None = None
+
+
+class ApprovalRequest(BaseModel):
+    approved_by_user_id: str = Field(..., min_length=1)
+    approved_by_role: str | None = None
+
+
+class InventoryUploadResponse(BaseModel):
+    status: str
+    items_loaded: int
+    message: str
 
 
 @app.get("/api/health")
@@ -137,6 +159,50 @@ def live_evaluation() -> dict[str, Any]:
         "rows": rows,
         "by_category": by_category,
     }
+
+
+@app.get("/api/demo-users")
+def demo_users() -> dict[str, Any]:
+    return {"users": DEMO_USERS}
+
+
+@app.post("/api/inventory/upload")
+async def upload_inventory(file: UploadFile = File(...)) -> dict[str, Any]:
+    if not file.filename or not file.filename.lower().endswith(".csv"):
+        raise HTTPException(status_code=400, detail={"error": "INVALID_FILE", "message": "Please upload a CSV file."})
+
+    contents = await file.read()
+    if not contents:
+        raise HTTPException(status_code=400, detail={"error": "EMPTY_FILE", "message": "The uploaded file is empty."})
+
+    try:
+        csv_text = contents.decode("utf-8")
+    except UnicodeDecodeError:
+        raise HTTPException(status_code=400, detail={"error": "INVALID_ENCODING", "message": "CSV must be UTF-8 encoded."})
+
+    try:
+        tmp_path = Path(tempfile.gettempdir()) / f"procureprep_uploaded_{abs(hash(file.filename))}.csv"
+        tmp_path.write_text(csv_text, encoding="utf-8")
+        items = load_inventory(tmp_path)
+    except Exception as exc:  # pragma: no cover - defensive guard while uploading data
+        raise HTTPException(status_code=400, detail={"error": "INVALID_CSV", "message": f"Could not read the uploaded inventory: {exc}"}) from exc
+
+    if not items:
+        raise HTTPException(status_code=400, detail={"error": "NO_ITEMS", "message": "The uploaded CSV contains no inventory rows."})
+
+    set_inventory_path(tmp_path)
+    return {
+        "status": "uploaded",
+        "items_loaded": len(items),
+        "source": str(tmp_path),
+        "message": "Inventory uploaded and now active for checks.",
+    }
+
+
+@app.post("/api/inventory/reset")
+def reset_inventory() -> dict[str, Any]:
+    reset_inventory_path()
+    return {"status": "reset", "message": "Inventory reset to the default demo dataset."}
 
 
 @app.get("/api/items")
@@ -174,6 +240,13 @@ def item_quotes(item_id: str) -> dict[str, Any]:
 
 @app.post("/api/requisitions/draft")
 def create_draft_endpoint(payload: DraftRequest) -> dict[str, Any]:
+    if payload.requested_by_user_id:
+        user = DEMO_USER_BY_ID.get(payload.requested_by_user_id)
+        if user is None:
+            raise HTTPException(status_code=400, detail={"error": "UNKNOWN_DEMO_USER", "message": "Requested user is not available in the demo system."})
+        if user["role"] not in {"procurement_officer", "store_manager"}:
+            raise HTTPException(status_code=400, detail={"error": "UNAUTHORIZED_DEMO_USER", "message": "This demo account is not allowed to create requisitions."})
+
     result = create_requisition_draft(
         item_id=payload.item_id,
         quantity=payload.quantity,
@@ -187,11 +260,30 @@ def create_draft_endpoint(payload: DraftRequest) -> dict[str, Any]:
 
 
 @app.post("/api/requisitions/{requisition_id}/approve")
-def approve_requisition(requisition_id: str) -> dict[str, Any]:
+def approve_requisition(requisition_id: str, payload: ApprovalRequest) -> dict[str, Any]:
+    user = DEMO_USER_BY_ID.get(payload.approved_by_user_id)
+    if user is None:
+        return JSONResponse(
+            status_code=400,
+            content={"error": "UNKNOWN_DEMO_USER", "message": "Approval requires a valid demo user."},
+        )
+
+    role = payload.approved_by_role or user["role"]
+    if role not in {"procurement_officer", "store_manager"}:
+        return JSONResponse(
+            status_code=400,
+            content={"error": "UNAUTHORIZED_APPROVER", "message": "Only procurement or store roles may approve a draft requisition in demo mode."},
+        )
+
     result = route_requisition_for_approval(requisition_id)
     if "error" in result:
-        raise HTTPException(status_code=400, detail=result)
-    return result
+        return JSONResponse(status_code=400, content=result)
+    return {
+        **result,
+        "approved_by_user_id": payload.approved_by_user_id,
+        "approved_by_name": user["name"],
+        "approved_by_role": role,
+    }
 
 
 if __name__ == "__main__":

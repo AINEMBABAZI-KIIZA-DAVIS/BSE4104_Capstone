@@ -17,6 +17,7 @@ python-dotenv>=1.0.0
 
 # Week 4 – tools / agent (stdlib unittest for tests; no extra test deps required)
 fastapi>=0.111.0
+python-multipart>=0.0.9
 uvicorn[standard]>=0.30.0
 
 # Submission document builder
