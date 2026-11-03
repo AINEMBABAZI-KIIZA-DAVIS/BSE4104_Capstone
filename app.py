@@ -5,17 +5,24 @@ import time
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, File, HTTPException, UploadFile
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field
+from fastapi import FastAPI, File, HTTPException, UploadFile # type: ignore
+from fastapi.middleware.cors import CORSMiddleware # type: ignore
+from fastapi.responses import JSONResponse # type: ignore
+from pydantic import BaseModel, Field # type: ignore
 
 from config import settings
 from evaluation.scenarios import SCENARIOS
 from src.agent_memory import AgentMemory
 from src.bounded_agent import run_bounded_agent
 from src.mcp_interface import call_mcp_tool
-from src.procure_data import load_inventory, reset_inventory_path, set_inventory_path
+from src.procure_data import (
+    load_inventory,
+    load_quotations,
+    reset_inventory_path,
+    reset_quotations_path,
+    set_inventory_path,
+    set_quotations_path,
+)
 from src.requisition_store import RequisitionStore
 from src.tools import (
     create_requisition_draft,
@@ -205,6 +212,46 @@ def reset_inventory() -> dict[str, Any]:
     return {"status": "reset", "message": "Inventory reset to the default demo dataset."}
 
 
+@app.post("/api/quotations/upload")
+async def upload_quotations(file: UploadFile = File(...)) -> dict[str, Any]:
+    if not file.filename or not file.filename.lower().endswith(".csv"):
+        raise HTTPException(status_code=400, detail={"error": "INVALID_FILE", "message": "Please upload a CSV file."})
+
+    contents = await file.read()
+    if not contents:
+        raise HTTPException(status_code=400, detail={"error": "EMPTY_FILE", "message": "The uploaded file is empty."})
+
+    try:
+        csv_text = contents.decode("utf-8")
+    except UnicodeDecodeError:
+        raise HTTPException(status_code=400, detail={"error": "INVALID_ENCODING", "message": "CSV must be UTF-8 encoded."})
+
+    try:
+        tmp_path = Path(tempfile.gettempdir()) / f"procureprep_uploaded_quotes_{abs(hash(file.filename))}.csv"
+        tmp_path.write_text(csv_text, encoding="utf-8")
+        quotes = load_quotations(tmp_path)
+    except Exception as exc:  # pragma: no cover - defensive guard while uploading data
+        raise HTTPException(status_code=400, detail={"error": "INVALID_CSV", "message": f"Could not read the uploaded quotations: {exc}"}) from exc
+
+    if not quotes:
+        raise HTTPException(status_code=400, detail={"error": "NO_QUOTES", "message": "The uploaded CSV contains no quotation rows."})
+
+    total_quotes = sum(len(rows) for rows in quotes.values())
+    set_quotations_path(tmp_path)
+    return {
+        "status": "uploaded",
+        "quotes_loaded": total_quotes,
+        "source": str(tmp_path),
+        "message": "Supplier quotations uploaded and now active for checks.",
+    }
+
+
+@app.post("/api/quotations/reset")
+def reset_quotations() -> dict[str, Any]:
+    reset_quotations_path()
+    return {"status": "reset", "message": "Supplier quotations reset to the default demo dataset."}
+
+
 @app.get("/api/items")
 def list_items() -> dict[str, Any]:
     inventory = load_inventory()
@@ -287,7 +334,7 @@ def approve_requisition(requisition_id: str, payload: ApprovalRequest) -> dict[s
 
 
 if __name__ == "__main__":
-    import uvicorn
+    import uvicorn # type: ignore
 
     uvicorn.run(
         "app:app",

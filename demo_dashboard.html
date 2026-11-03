@@ -51,7 +51,7 @@
 
     body {
       font-family: var(--sans);
-      background: var(--paper);
+      background: linear-gradient(180deg, #f9f7f1 0%, #f3f6ef 100%);
       color: var(--text);
       min-height: 100vh;
       display: grid;
@@ -148,7 +148,7 @@
     }
 
     aside {
-      background: var(--ink);
+      background: linear-gradient(180deg, #0b1220 0%, #0f2d2f 38%, #0d1f16 100%);
       color: #cbd5e1;
       padding: 1.5rem 1rem;
       position: sticky;
@@ -167,10 +167,14 @@
     }
 
     .flag {
-      width: 6px;
+      width: 10px;
       height: 34px;
-      border-radius: 3px;
-      background: linear-gradient(#000 0 33%, var(--yellow) 33% 66%, #d90000 66%)
+      border-radius: 999px;
+      background: linear-gradient(180deg,
+        var(--uganda-black) 0 33%,
+        var(--uganda-yellow) 33% 66%,
+        var(--uganda-red) 66% 100%);
+      box-shadow: 0 0 0 1px rgba(255,255,255,.08);
     }
 
     .brand b {
@@ -215,10 +219,10 @@
     }
 
     nav button[aria-selected=true] {
-      background: rgba(255, 255, 255, .1);
+      background: rgba(250, 204, 21, .08);
       color: #fff;
       font-weight: 600;
-      box-shadow: inset 3px 0 0 #3fb9a2
+      box-shadow: inset 3px 0 0 var(--uganda-yellow)
     }
 
     nav .count {
@@ -387,7 +391,7 @@
     }
 
     .hero-panel {
-      background: linear-gradient(135deg, #0f1b2d 0%, #183d5b 45%, #0d654f 100%);
+      background: linear-gradient(135deg, #111827 0%, #1d3b3b 28%, #0f766e 58%, #d6292b 100%);
       border-radius: 18px;
       padding: 1.5rem;
       color: #edf6ff;
@@ -436,10 +440,10 @@
       gap: .5rem;
       padding: .42rem .7rem;
       border-radius: 999px;
-      background: rgba(255, 255, 255, .08);
-      border: 1px solid rgba(255, 255, 255, .12);
-      color: #edf6ff;
-      font-weight: 600;
+      background: rgba(250, 204, 21, .12);
+      border: 1px solid rgba(250, 204, 21, .35);
+      color: #fff7d1;
+      font-weight: 700;
       font-size: .78rem
     }
 
@@ -580,21 +584,21 @@
     }
 
     .btn-primary {
-      background: var(--ink);
+      background: linear-gradient(135deg, #111827 0%, #0f766e 100%);
       color: #fff
     }
 
     .btn-primary:hover:not(:disabled) {
-      background: var(--ink2)
+      background: linear-gradient(135deg, #0f172a 0%, #0b5a4d 100%)
     }
 
     .btn-ok {
-      background: var(--brand);
+      background: linear-gradient(135deg, var(--uganda-green) 0%, #0b5a4d 100%);
       color: #fff
     }
 
     .btn-ok:hover:not(:disabled) {
-      background: #0b5a4d
+      background: linear-gradient(135deg, #0c5d54 0%, #0b4d44 100%)
     }
 
     .btn-ghost {
@@ -832,28 +836,115 @@
       color: var(--amber)
     }
 
+    #result-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, .45);
+      backdrop-filter: blur(5px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease;
+      z-index: 400;
+    }
+
+    #result-backdrop.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
     #req {
       display: none;
+      position: relative;
       margin-top: 1rem;
       border-color: #b9ddd4;
-      background: #f7fcfa
+      background: linear-gradient(180deg, #f8fffd 0%, #f1faf9 100%);
+      border: 1px solid rgba(15, 118, 110, .18);
+      border-radius: 22px;
+      box-shadow: 0 18px 40px rgba(15, 118, 110, .12);
+      padding: 1rem 1rem .9rem;
+      transform: translateY(10px) scale(.98);
+      opacity: 0;
+      transition: transform .28s ease, opacity .22s ease, max-height .28s ease, padding .28s ease, width .28s ease;
+      max-height: 600px;
+      overflow: hidden;
+      z-index: 500;
+    }
+
+    #req.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    #req.modal-open {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      width: min(760px, 88vw);
+      transform: translate(-50%, -50%) scale(1);
+      max-height: 82vh;
+      margin-top: 0;
+      box-shadow: 0 26px 70px rgba(15, 118, 110, .18);
+    }
+
+    #req.req-collapsed {
+      display: block;
+      position: relative;
+      margin-top: 1rem;
+      max-height: 82px;
+      padding: .75rem .9rem;
+      transform: translateY(0) scale(.97);
+      opacity: 1;
+      box-shadow: 0 10px 24px rgba(15, 118, 110, .08);
+      width: 100%;
+    }
+
+    #req.req-collapsed .req-grid,
+    #req.req-collapsed .approve,
+    #req.req-collapsed #approve-note {
+      display: none;
+    }
+
+    #req.req-collapsed .req-top {
+      margin-bottom: 0;
     }
 
     .req-top {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: .75rem;
       margin-bottom: 1rem
     }
 
     .req-top h2 {
-      margin: 0
+      margin: 0;
+      font-size: 1.15rem
+    }
+
+    .req-close {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid rgba(15, 118, 110, .18);
+      background: rgba(255,255,255,.7);
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1;
+      cursor: pointer;
+      transition: all .2s ease;
+    }
+
+    .req-close:hover {
+      background: var(--brand-soft);
+      color: var(--brand);
+      border-color: rgba(15, 118, 110, .28);
     }
 
     .req-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: .9rem
+      gap: .9rem;
+      transition: opacity .2s ease;
     }
 
     .req-grid small {
@@ -1370,10 +1461,10 @@
 
     <section class="panel active" id="panel-overview" role="tabpanel">
       <div class="hero-panel">
-        <div class="eyebrow">What the system solves</div>
-        <h1>Procurement teams need faster reviews without risking bad spend.</h1>
-        <p>This system monitors item stock, checks supplier quotes, and drafts a requisition only when the facts are valid.
-          A human approval gate keeps every step accountable and prevents silent or unsafe purchases.</p>
+        <div class="eyebrow">Made for Uganda</div>
+        <h1>Smarter procurement for Ugandan SMEs and operational teams.</h1>
+        <p>This system monitors stock, checks supplier quotes, and drafts a requisition only when the facts are valid.
+          A human approval gate keeps every step accountable and prevents risky or silent purchases in real-world operations.</p>
         <div class="badge-row">
           <span class="badge">Live stock checks</span>
           <span class="badge">Quote validation</span>
@@ -1467,10 +1558,18 @@
           </div>
           <div class="card mb">
             <h2>Inventory upload</h2>
-            <p style="font-size:.82rem;color:var(--muted);margin-bottom:.8rem">Upload a local CSV to test the workflow against a fresh dataset without changing the default demo data.</p>
+            <p style="font-size:.82rem;color:var(--muted);margin-bottom:.8rem">Upload a local inventory CSV to test the workflow against a fresh stock dataset without changing the default demo data.</p>
             <input id="inventory-file" type="file" accept=".csv" style="width:100%;padding:.7rem;border:1px solid var(--line);border-radius:8px;background:#fff" />
             <div style="display:flex;gap:.75rem;margin-top:.8rem;flex-wrap:wrap">
               <button class="btn btn-primary" type="button" onclick="uploadInventoryFile()">Upload inventory</button>
+            </div>
+          </div>
+          <div class="card mb">
+            <h2>Supplier quote upload</h2>
+            <p style="font-size:.82rem;color:var(--muted);margin-bottom:.8rem">Upload a local quotations CSV to replace the supplier quote pool for live checks and requisition drafting.</p>
+            <input id="quotes-file" type="file" accept=".csv" style="width:100%;padding:.7rem;border:1px solid var(--line);border-radius:8px;background:#fff" />
+            <div style="display:flex;gap:.75rem;margin-top:.8rem;flex-wrap:wrap">
+              <button class="btn btn-primary" type="button" onclick="uploadQuotesFile()">Upload supplier quotes</button>
               <button class="btn btn-ghost" type="button" onclick="resetInventoryFile()">Reset default data</button>
             </div>
           </div>
@@ -1484,9 +1583,14 @@
           <div id="agent-log">
             <div class="empty">Select an item and run the agent to see each step.</div>
           </div>
+          <div id="result-backdrop" aria-hidden="true"></div>
           <div id="req" class="card">
             <div class="req-top">
-              <h2>Requisition drafted</h2><span class="tag t-warn" id="req-status">DRAFT</span>
+              <h2>Requisition drafted</h2>
+              <div style="display:flex;align-items:center;gap:.6rem">
+                <span class="tag t-warn" id="req-status">DRAFT</span>
+                <button class="req-close" type="button" aria-label="Close result" onclick="toggleResultPopup()">×</button>
+              </div>
             </div>
             <div class="req-grid" id="req-fields"></div>
             <div class="approve">
@@ -1922,7 +2026,13 @@
 
     function hideLoader() {
       const loader = $('app-loader');
-      if (loader) loader.classList.add('hidden');
+      if (loader) {
+        loader.classList.add('hidden');
+      }
+    }
+
+    function waitForLoaderDelay(ms = 8000) {
+      return new Promise(resolve => setTimeout(resolve, ms));
     }
 
     async function bootstrapDashboard() {
@@ -1934,6 +2044,7 @@
           loadCatalog()
         ]);
         await updateItemInfo();
+        await waitForLoaderDelay(8000);
         toast('Dashboard ready.');
       } finally {
         isBooting = false;
@@ -1987,6 +2098,7 @@
         if (!status.needs_reorder) {
           await step('plan', 'Check reorder status', `${status.current_stock} >= ${status.reorder_threshold} → <strong>no reorder needed</strong>`, 800);
           await step('stop', 'Stop: NO_REORDER_NEEDED', 'Stock is sufficient. No quotes fetched and no draft created.', 1300);
+          showNoReorderResult(status);
           toast('Stopped: stock is sufficient.');
           return finish();
         }
@@ -2000,6 +2112,7 @@
           await step('act', 'get_supplier_quotations', `get_supplier_quotations(item_id="${itemId}")`, 1400);
           await step('observe', 'Result: NO_QUOTATIONS', `0 valid quotations on file for ${itemId}`, 2000);
           await step('stop', 'Stop: NO_QUOTATIONS', 'A reorder is needed, but a draft requires valid supplier quotes.', 2600);
+          showNoQuoteResult(status);
           toast('Stopped: no valid quotations available.');
           return finish();
         }
@@ -2041,21 +2154,109 @@
         finish();
       } catch (error) {
         await step('error', 'Backend error', String(error).replace(/\"/g, ''), 400);
+        renderResultCard({
+          title: 'Execution failed',
+          statusText: 'ERROR',
+          statusClass: 't-bad',
+          fields: [
+            ['Item', itemId],
+            ['Error', String(error).replace(/\"/g, '')],
+            ['Decision', 'No requisition created']
+          ],
+          note: 'The backend request failed, so the workflow stopped before a draft or approval action could be completed.',
+          showApprovalActions: false,
+        });
         finish();
         toast('Backend request failed.');
       }
     }
 
+    function toggleResultPopup() {
+      const req = $('req');
+      const backdrop = $('result-backdrop');
+      if (!req || req.style.display === 'none') return;
+      const isOpen = req.classList.contains('modal-open');
+      if (isOpen) {
+        req.classList.remove('modal-open', 'visible');
+        req.classList.add('req-collapsed');
+        backdrop.classList.remove('visible');
+        return;
+      }
+      req.classList.remove('req-collapsed');
+      req.classList.add('modal-open', 'visible');
+      backdrop.classList.add('visible');
+    }
+
+    function renderResultCard({ title, statusText, statusClass, fields, note, showApprovalActions = false, approvalEnabled = true }) {
+      const req = $('req');
+      const backdrop = $('result-backdrop');
+      const tag = $('req-status');
+      $('req-fields').innerHTML = fields.map(([k, v]) => `<div><small>${k}</small><span>${v}</span></div>`).join('');
+      tag.textContent = statusText;
+      tag.className = `tag ${statusClass}`;
+      req.querySelector('h2').textContent = title;
+      $('approve-btn').style.display = showApprovalActions ? 'inline-flex' : 'none';
+      $('decline-btn').style.display = showApprovalActions ? 'inline-flex' : 'none';
+      $('approve-btn').disabled = !approvalEnabled;
+      $('decline-btn').disabled = !showApprovalActions;
+      $('approve-note').textContent = note;
+      req.style.display = 'block';
+      req.classList.remove('req-collapsed');
+      req.classList.add('modal-open', 'visible');
+      backdrop.classList.add('visible');
+    }
+
+    function showNoReorderResult(status) {
+      const itemName = status.item_name || ITEMS[$('item-select').value]?.item_name || 'Selected item';
+      renderResultCard({
+        title: 'No reorder required',
+        statusText: 'NO_REORDER',
+        statusClass: 't-ok',
+        fields: [
+          ['Item', status.item_id],
+          ['Name', itemName],
+          ['Current stock', `${status.current_stock} ${status.unit}`],
+          ['Threshold', `${status.reorder_threshold} ${status.unit}`],
+          ['Decision', 'No action needed']
+        ],
+        note: 'The item is already above its reorder threshold, so the agent stopped safely and did not create a requisition.',
+        showApprovalActions: false,
+      });
+    }
+
+    function showNoQuoteResult(status) {
+      const itemId = status.item_id || $('item-select').value;
+      renderResultCard({
+        title: 'No valid quotes available',
+        statusText: 'NO_QUOTATIONS',
+        statusClass: 't-bad',
+        fields: [
+          ['Item', itemId],
+          ['Current stock', `${status.current_stock} ${status.unit}`],
+          ['Threshold', `${status.reorder_threshold} ${status.unit}`],
+          ['Deficit', `${status.replenishment_deficit} ${status.unit}`],
+          ['Decision', 'No requisition created']
+        ],
+        note: 'A reorder is needed, but the system found no valid supplier quotes, so the workflow stopped before creating a draft.',
+        showApprovalActions: false,
+      });
+    }
+
     function showDraft() {
       const d = draft;
       const unit = d.quote ? d.quote.unit || 'Unit' : 'Unit';
-      $('req-fields').innerHTML = [['Requisition', d.id], ['Item', d.itemId], ['Quantity', `${d.qty} ${unit}`], ['Quote', d.quote.quotation_id], ['Supplier', d.quote.supplier_name], ['Total', `UGX ${fmt(d.total)}`]]
-        .map(([k, v]) => `<div><small>${k}</small><span>${v}</span></div>`).join('');
-      const tag = $('req-status'); tag.textContent = 'DRAFT'; tag.className = 'tag t-warn';
       const canRoute = role === 'procurement_officer' || role === 'store_manager';
-      $('approve-btn').disabled = !canRoute; $('decline-btn').disabled = false;
-      $('approve-note').textContent = canRoute ? 'Routing changes workflow state and needs your confirmation.' : 'UNAUTHORIZED_ROLE: this demo user cannot approve requisitions.';
-      $('req').style.display = 'block';
+      renderResultCard({
+        title: 'Requisition drafted',
+        statusText: 'DRAFT',
+        statusClass: 't-warn',
+        fields: [['Requisition', d.id], ['Item', d.itemId], ['Quantity', `${d.qty} ${unit}`], ['Quote', d.quote.quotation_id], ['Supplier', d.quote.supplier_name], ['Total', `UGX ${fmt(d.total)}`]],
+        note: canRoute ? 'Routing changes workflow state and needs your confirmation.' : 'UNAUTHORIZED_ROLE: this demo user cannot approve requisitions.',
+        showApprovalActions: true,
+        approvalEnabled: canRoute,
+      });
+      $('approve-btn').disabled = !canRoute;
+      $('decline-btn').disabled = false;
     }
 
     function logHuman(type, title, detail) {
@@ -2116,10 +2317,32 @@
       }
     }
 
+    async function uploadQuotesFile() {
+      const input = $('quotes-file');
+      if (!input.files || !input.files.length) {
+        toast('Choose a quotations CSV file before uploading.');
+        return;
+      }
+      const file = input.files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+      try {
+        const result = await apiFetch('/api/quotations/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        toast(`${result.quotes_loaded} supplier quotes loaded.`);
+        await updateItemInfo();
+      } catch (error) {
+        toast('Quote upload failed — check the CSV format and retry.');
+      }
+    }
+
     async function resetInventoryFile() {
       try {
         await apiFetch('/api/inventory/reset', { method: 'POST' });
-        toast('Default inventory restored.');
+        await apiFetch('/api/quotations/reset', { method: 'POST' });
+        toast('Default inventory and supplier data restored.');
         await loadCatalog();
         await updateItemInfo();
       } catch (error) {
@@ -2129,7 +2352,12 @@
 
     function resetDemo() {
       $('agent-log').innerHTML = '<div class="empty">Select an item and run the agent to see each step.</div>';
-      $('req').style.display = 'none'; draft = null; finish();
+      const req = $('req');
+      const backdrop = $('result-backdrop');
+      req.style.display = 'none';
+      req.classList.remove('visible', 'req-collapsed', 'modal-open');
+      backdrop.classList.remove('visible');
+      draft = null; finish();
     }
 
     function setGuardInput(t) { $('guard-input').value = t; runGuardrailCheck() }

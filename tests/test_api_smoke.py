@@ -83,6 +83,48 @@ class RealApiSmokeTests(unittest.TestCase):
         reset = self.client.post("/api/inventory/reset")
         self.assertEqual(reset.status_code, 200)
 
+    def test_quotation_upload_endpoint_accepts_csv(self):
+        csv_text = (
+            "quotation_id,item_id,supplier_name,unit_price,quantity_available,delivery_terms,quotation_valid_until,notes\n"
+            "Q-999,ITEM-004,Uploaded Supplier Ltd,50000,50,Next-day delivery,2026-12-31,Demo quote\n"
+        )
+        response = self.client.post(
+            "/api/quotations/upload",
+            files={"file": ("quotes_demo.csv", csv_text, "text/csv")},
+        )
+        self.assertEqual(response.status_code, 200, response.text)
+        payload = response.json()
+        self.assertEqual(payload["status"], "uploaded")
+        self.assertEqual(payload["quotes_loaded"], 1)
+
+        quotes = self.client.get("/api/items/ITEM-004/quotes")
+        self.assertEqual(quotes.status_code, 200)
+        self.assertTrue(any(q["quotation_id"] == "Q-999" for q in quotes.json()["quotations"]))
+
+        reset = self.client.post("/api/quotations/reset")
+        self.assertEqual(reset.status_code, 200)
+
+    def test_quotation_upload_accepts_common_header_variants(self):
+        csv_text = (
+            "quote_id,item,Vendor,price_ugx,available_qty,delivery_method,valid_until,remarks\n"
+            "Q-777,ITEM-004,New Market Traders,42000,90,Same-day dispatch,2026-11-15,Alternate format\n"
+        )
+        response = self.client.post(
+            "/api/quotations/upload",
+            files={"file": ("quotes_alt.csv", csv_text, "text/csv")},
+        )
+        self.assertEqual(response.status_code, 200, response.text)
+        payload = response.json()
+        self.assertEqual(payload["status"], "uploaded")
+        self.assertEqual(payload["quotes_loaded"], 1)
+
+        quotes = self.client.get("/api/items/ITEM-004/quotes")
+        self.assertEqual(quotes.status_code, 200)
+        self.assertTrue(any(q["quotation_id"] == "Q-777" for q in quotes.json()["quotations"]))
+
+        reset = self.client.post("/api/quotations/reset")
+        self.assertEqual(reset.status_code, 200)
+
 
 if __name__ == "__main__":
     unittest.main()

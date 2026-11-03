@@ -71,18 +71,27 @@ def get_supplier_quotations(item_id: Optional[str] = None) -> dict[str, Any]:
         return {"error": "ITEM_NOT_FOUND", "item_id": item_id}
 
     quotes = load_quotations().get(item_id, [])
-    records = [
-        {
-            "quotation_id": q["quotation_id"],
-            "supplier_name": q["supplier_name"],
-            "unit_price": int(q["unit_price"]),
-            "quantity_available": int(q["quantity_available"]),
-            "delivery_terms": q.get("delivery_terms") or "",
-            "quotation_valid_until": q.get("quotation_valid_until") or "",
-            "notes": q.get("notes") or "",
-        }
-        for q in quotes
-    ]
+    records = []
+    for q in quotes:
+        unit_price_raw = q.get("unit_price")
+        if unit_price_raw in (None, ""):
+            continue
+        try:
+            unit_price = int(unit_price_raw)
+            quantity_available = int(q.get("quantity_available") or 0)
+        except (TypeError, ValueError):
+            continue
+        records.append(
+            {
+                "quotation_id": q.get("quotation_id") or "",
+                "supplier_name": q.get("supplier_name") or "Unknown supplier",
+                "unit_price": unit_price,
+                "quantity_available": quantity_available,
+                "delivery_terms": q.get("delivery_terms") or "",
+                "quotation_valid_until": q.get("quotation_valid_until") or "",
+                "notes": q.get("notes") or "",
+            }
+        )
 
     result: dict[str, Any] = {"item_id": item_id, "quotations": records}
     if not records:
