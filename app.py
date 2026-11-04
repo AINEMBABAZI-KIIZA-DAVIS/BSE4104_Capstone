@@ -16,6 +16,10 @@ from src.agent_memory import AgentMemory
 from src.bounded_agent import run_bounded_agent
 from src.mcp_interface import call_mcp_tool
 from src.procure_data import (
+    ACTIVE_INVENTORY_PATH,
+    ACTIVE_QUOTATIONS_PATH,
+    DEFAULT_INVENTORY_PATH,
+    DEFAULT_QUOTATIONS_PATH,
     load_inventory,
     load_quotations,
     reset_inventory_path,
@@ -145,27 +149,43 @@ def health() -> dict[str, Any]:
 
 @app.get("/api/evaluation")
 def live_evaluation() -> dict[str, Any]:
-    with tempfile.TemporaryDirectory() as tmpdir:
-        set_store(RequisitionStore(Path(tmpdir) / "requisitions.json"))
-        set_reference_date("2026-09-16")
-        memory = AgentMemory(Path(tmpdir) / "memory.json")
-        rows = [_run_one_evaluation_scenario(scenario, memory) for scenario in SCENARIOS]
+    previous_inventory = ACTIVE_INVENTORY_PATH
+    previous_quotations = ACTIVE_QUOTATIONS_PATH
+    set_inventory_path(DEFAULT_INVENTORY_PATH)
+    set_quotations_path(DEFAULT_QUOTATIONS_PATH)
 
-    passed = sum(1 for row in rows if row["passed"])
-    by_category: dict[str, dict[str, int]] = {}
-    for row in rows:
-        bucket = by_category.setdefault(row["category"], {"passed": 0, "total": 0})
-        bucket["total"] += 1
-        if row["passed"]:
-            bucket["passed"] += 1
+    try:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            set_store(RequisitionStore(Path(tmpdir) / "requisitions.json"))
+            set_reference_date("2026-09-16")
+            memory = AgentMemory(Path(tmpdir) / "memory.json")
+            rows = [_run_one_evaluation_scenario(scenario, memory) for scenario in SCENARIOS]
 
-    return {
-        "total": len(rows),
-        "passed": passed,
-        "failed": len(rows) - passed,
-        "rows": rows,
-        "by_category": by_category,
-    }
+        passed = sum(1 for row in rows if row["passed"])
+        by_category: dict[str, dict[str, int]] = {}
+        for row in rows:
+            bucket = by_category.setdefault(row["category"], {"passed": 0, "total": 0})
+            bucket["total"] += 1
+            if row["passed"]:
+                bucket["passed"] += 1
+
+        return {
+            "total": len(rows),
+            "passed": passed,
+            "failed": len(rows) - passed,
+            "rows": rows,
+            "by_category": by_category,
+        }
+    finally:
+        if previous_inventory is not None:
+            set_inventory_path(previous_inventory)
+        else:
+            reset_inventory_path()
+
+        if previous_quotations is not None:
+            set_quotations_path(previous_quotations)
+        else:
+            reset_quotations_path()
 
 
 @app.get("/api/demo-users")

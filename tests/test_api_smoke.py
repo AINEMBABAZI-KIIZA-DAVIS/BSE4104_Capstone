@@ -125,6 +125,33 @@ class RealApiSmokeTests(unittest.TestCase):
         reset = self.client.post("/api/quotations/reset")
         self.assertEqual(reset.status_code, 200)
 
+    def test_evaluation_uses_default_benchmark_not_uploaded_demo_data(self):
+        inventory_csv = "item_id,item_name,category,current_stock,reorder_threshold,unit\nITEM-999,Uploaded Widget,Office Supplies,100,1,Box\n"
+        quotes_csv = (
+            "quotation_id,item_id,supplier_name,unit_price,quantity_available,delivery_terms,quotation_valid_until,notes\n"
+            "Q-999,ITEM-004,Uploaded Supplier Ltd,100,50,Next-day delivery,2026-12-31,Demo quote\n"
+        )
+
+        upload_inventory = self.client.post(
+            "/api/inventory/upload",
+            files={"file": ("upload_benchmark_override.csv", inventory_csv, "text/csv")},
+        )
+        self.assertEqual(upload_inventory.status_code, 200, upload_inventory.text)
+
+        upload_quotes = self.client.post(
+            "/api/quotations/upload",
+            files={"file": ("quotes_benchmark_override.csv", quotes_csv, "text/csv")},
+        )
+        self.assertEqual(upload_quotes.status_code, 200, upload_quotes.text)
+
+        evaluation = self.client.get("/api/evaluation")
+        self.assertEqual(evaluation.status_code, 200, evaluation.text)
+        self.assertEqual(evaluation.json()["passed"], 32)
+        self.assertEqual(evaluation.json()["failed"], 0)
+
+        self.client.post("/api/inventory/reset")
+        self.client.post("/api/quotations/reset")
+
 
 if __name__ == "__main__":
     unittest.main()
